@@ -11,10 +11,8 @@ interface MetricCardProps {
 export function MetricCard({ title, count, icon, colorClass }: MetricCardProps) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6 backdrop-blur-sm">
-      {/* Topo do Card: Alinha o Título e o Ícone nas extremidades */}
       <div className="flex items-center justify-between text-zinc-400 text-xs font-medium uppercase tracking-wider">
         <span>{title}</span>
-        {/* Envolvemos o ícone em uma div que herda a cor passada por propriedade */}
         <div className={colorClass}>
           {icon}
         </div>

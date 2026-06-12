@@ -47,7 +47,6 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       
-      {/* Título da Seção (Visão Executiva) */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Dashboard Executivo</h1>
         <p className="text-sm text-zinc-400">Análise de performance em tempo real e alertas urgentes do sistema.</p>
