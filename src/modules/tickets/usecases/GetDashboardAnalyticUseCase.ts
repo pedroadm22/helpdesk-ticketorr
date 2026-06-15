@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db"; // Sua conexão real configurada com o Singleton
-import { tickets } from "@/infrastructure/schema/ticket"; // Sua tabela física do SQLite
+import { tickets } from "@/infrastructure/schemas/schema"; // Sua tabela física do SQLite
 import { count, eq } from "drizzle-orm"; // Funções utilitárias de query do Drizzle
 import { DashboardAnalyticsDto } from "../dto/DashboardAnalyticsDto";
 

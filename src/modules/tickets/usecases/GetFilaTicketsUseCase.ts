@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db";
-import { tickets, users } from "@/infrastructure/schema/ticket";
+import { tickets, users } from "@/infrastructure/schemas/schema";
 import { desc, eq } from "drizzle-orm";
 import { ListaFilaTicketsDto } from "../dto/ListaFilaTicketsDto";
 

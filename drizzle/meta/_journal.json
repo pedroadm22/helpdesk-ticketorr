@@ -15,6 +15,13 @@
       "when": 1781544986718,
       "tag": "0001_sleepy_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781564124813,
+      "tag": "0002_even_banshee",
+      "breakpoints": true
     }
   ]
 }

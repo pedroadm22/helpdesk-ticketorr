@@ -2,7 +2,7 @@ import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   // 1. Indica onde estão os arquivos de schema do seu banco de dados
-  schema: "./src/infrastructure/schema/**/*.ts",
+  schema: "./src/infrastructure/schemas/**/*.ts",
   
   // 2. Pasta onde o Drizzle vai gerar o histórico de migrações em SQL (caso precise no futuro)
   out: "./drizzle",
