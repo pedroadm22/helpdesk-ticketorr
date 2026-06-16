@@ -11,7 +11,7 @@ export function Sidebar() {
   // 1. Centralizamos os links em um array para evitar repetição de código
   const itensMenu = [
     { label: "Dashboard", href: "/", icon: Kanban },
-    { label: "Chamados", href: "/chamados", icon: Ticket },
+    { label: "Chamados", href: "/ticket", icon: Ticket },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { TicketTable } from "@/components/features/chamados/TicketTable";
+import { TicketTable } from "@/components/features/ticket/TicketTable";
 import { getFilaTicketsUseCase } from "@/modules/tickets/use-cases/GetFilaTicketsUseCase";
 import Link from "next/link";
 
@@ -20,7 +20,7 @@ export default async function ChamadosPage() {
         
         {/* Botão para abrir modal ou redirecionar para formulário */}
         <Link 
-          href="/chamados/abrir-chamado" 
+          href="/ticket/abrir-ticket" 
           className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-all duration-200 shadow-lg shadow-blue-600/10 active:scale-98"
         >
           <Plus size={16} />

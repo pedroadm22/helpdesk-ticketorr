@@ -27,7 +27,7 @@ export function useCriarTicketForm() {
       return;
     }
 
-    router.push("/chamados");
+    router.push("/ticket");
     router.refresh();
   }
 

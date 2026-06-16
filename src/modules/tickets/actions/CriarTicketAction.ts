@@ -39,7 +39,7 @@ export async function criarTicketAction(formData: FormData) {
     // 5. Destruição de Cache (On-Demand Revalidation)
     // Força o Next.js a atualizar os dados do Dashboard e da Fila na hora!
     revalidatePath("/");
-    revalidatePath("/chamados");
+    revalidatePath("/ticket");
 
     return { 
       success: true, 

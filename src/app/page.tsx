@@ -1,10 +1,10 @@
 // 1. Imports dos componentes de Features globais (compartilhados entre telas)
-import { UrgentAlert } from "@/components/features/chamados/UrgentAlert";
-import { TicketTable } from "@/components/features/chamados/TicketTable";
+import { UrgentAlert } from "@/components/features/ticket/UrgentAlert";
+import { TicketTable } from "@/components/features/ticket/TicketTable";
 
 // 2. Imports dos componentes Locais (exclusivos do Dashboard)
 import { AnalyticGrid } from "@/components/features/dashboard/AnalyticGrid";
-import { UrgentTicketRow } from "@/components/features/chamados/UrgentTicketRow";
+import { UrgentTicketRow } from "@/components/features/ticket/UrgentTicketRow";
 
 // 3. Imports da Camada de Domínio / Regras de Negócio (Usecases)
 import { getDashboardAnalyticsUseCase } from "@/modules/tickets/use-cases/GetDashboardAnalyticUseCase";

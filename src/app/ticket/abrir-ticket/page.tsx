@@ -1,5 +1,5 @@
 // src/app/tickets/novo/page.tsx
-import { CriarTicketForm } from "@/components/features/chamados/CriarTicketForm";
+import { CriarTicketForm } from "@/components/features/ticket/CriarTicketForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
