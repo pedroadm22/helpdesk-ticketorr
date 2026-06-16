@@ -36,7 +36,7 @@ export default async function ChamadosPage() {
         
         {/* Reaproveitando a estrutura inteligente com os Badges automáticos */}
         <div className="p-4">
-          <TicketTable data={filaTickets} />
+          <TicketTable tickets={filaTickets} />
         </div>
       </div>
 

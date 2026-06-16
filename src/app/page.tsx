@@ -46,7 +46,7 @@ export default async function HomePage() {
           <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/20 p-5 shadow-sm">
             <h2 className="text-lg font-medium text-zinc-200 mb-4">Chamados Recentes</h2>
             {/* Injeta a lista limpa e formatada pelo DTO na tabela reaproveitável */}
-            <TicketTable data={filaTickets} />
+            <TicketTable tickets={filaTickets} />
           </div>
         </div>
 

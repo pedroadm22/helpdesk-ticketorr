@@ -1,49 +1,49 @@
-import { TicketFilaItemDto } from "@/modules/tickets/dto/ListaFilaTicketsDto";
-import { StatusBadge } from "./StatusBadge";
+// src/components/features/ticket/TicketRow.tsx
+"use client";
+
 import Link from "next/link";
-// Se criar o PriorityBadge, importe-o aqui
 
 interface TicketRowProps {
-  item: TicketFilaItemDto;
+  ticket: any;
 }
 
-export function TicketRow({ item }: TicketRowProps) {
+export function TicketRow({ ticket }: TicketRowProps) {
+  if (!ticket) return null;
+
   return (
-    <tr className="hover:bg-zinc-800/10 transition-colors group">
-      {/* Protocolo */}
-      <td className="py-3.5 px-4 font-mono text-xs font-bold text-zinc-400">
-        <span className="bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded whitespace-nowrap group-hover:border-zinc-700 transition-colors">
-          {item.protocolo}
+    <Link
+      href={`/ticket/${ticket.id}`}
+      // 🟢 w-full faz expandir tudo horizontalmente, grid-cols-12 dita as mesmas colunas do pai
+      className="grid grid-cols-12 items-center w-full px-4 py-4 bg-zinc-900/20 border border-zinc-900 hover:border-blue-500/40 hover:bg-zinc-900/50 rounded-xl transition-all group cursor-pointer"
+    >
+      {/* 1. PROTOCOLO (Ocupa 2 de 12 colunas) */}
+      <div className="col-span-2">
+        <span className="inline-block text-xs font-mono font-bold text-blue-400 bg-blue-950/30 px-2 py-1 rounded border border-blue-900/40 group-hover:border-blue-500/40 transition-colors">
+          {ticket.protocolo}
         </span>
-      </td>
+      </div>
 
-      {/* Assunto e Cliente */}
-      <td className="py-3.5 px-4">
-        <div className="font-medium text-zinc-200 truncate group-hover:text-zinc-100 transition-colors">
-          {item.titulo}
-        </div>
-        <div className="text-xs text-zinc-500 truncate mt-0.5">
-          {item.clienteNome}
-        </div>
-      </td>
+      {/* 2. ASSUNTO / CLIENTE (Ocupa 5 de 12 colunas) */}
+      <div className="col-span-5 space-y-1 pr-4">
+        <h3 className="text-sm font-bold text-zinc-100 group-hover:text-blue-400 transition-colors truncate">
+          {ticket.titulo}
+        </h3>
+        <p className="text-xs text-zinc-500">
+          Aberto por <span className="text-zinc-400 font-medium">{ticket.clienteNome}</span>
+        </p>
+      </div>
 
-      {/* Status */}
-      <td className="py-3.5 px-4">
-        <StatusBadge statusId={item.statusId} />
-      </td>
+      {/* 3. STATUS (Ocupa 3 de 12 colunas) */}
+      <div className="col-span-3">
+        <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700/60 text-zinc-300">
+          Aberto
+        </span>
+      </div>
 
-      {/* Data */}
-      <td className="py-3.5 px-4 text-xs text-zinc-400">{item.dataCriacao}</td>
-
-      {/* Ações */}
-      <td className="py-3.5 px-4 text-right">
-        <Link
-          href={`/tickets/${item.id}`}
-          className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/10 px-2.5 py-1 rounded-md"
-        >
-          Gerenciar
-        </Link>
-      </td>
-    </tr>
+      {/* 4. ABERTURA (Ocupa 2 de 12 colunas - Alinhado à direita para casar com o cabeçalho) */}
+      <div className="col-span-2 text-right text-xs text-zinc-400 font-medium">
+        {ticket.dataCriacao}
+      </div>
+    </Link>
   );
 }
