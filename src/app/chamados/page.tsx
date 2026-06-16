@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { TicketTable } from "@/components/features/chamados/TicketTable";
-import { getFilaTicketsUseCase } from "@/modules/tickets/usecases/GetFilaTicketsUseCase";
+import { getFilaTicketsUseCase } from "@/modules/tickets/use-cases/GetFilaTicketsUseCase";
 import Link from "next/link";
 
 // Repare: Sem "use client". A página agora é um Server Component nativo.

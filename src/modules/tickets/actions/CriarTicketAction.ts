@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { criarTicketUseCase } from "../usecases/CriarTicketUseCase";
+import { criarTicketUseCase } from "../use-cases/CriarTicketUseCase";
 import { criarTicketSchema } from "../dto/CriarTicketDto";
 
 export async function criarTicketAction(formData: FormData) {

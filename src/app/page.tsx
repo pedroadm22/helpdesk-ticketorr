@@ -7,8 +7,8 @@ import { AnalyticGrid } from "@/components/features/dashboard/AnalyticGrid";
 import { UrgentTicketRow } from "@/components/features/chamados/UrgentTicketRow";
 
 // 3. Imports da Camada de Domínio / Regras de Negócio (Usecases)
-import { getDashboardAnalyticsUseCase } from "@/modules/tickets/usecases/GetDashboardAnalyticUseCase";
-import { getFilaTicketsUseCase } from "@/modules/tickets/usecases/GetFilaTicketsUseCase";
+import { getDashboardAnalyticsUseCase } from "@/modules/tickets/use-cases/GetDashboardAnalyticUseCase";
+import { getFilaTicketsUseCase } from "@/modules/tickets/use-cases/GetFilaTicketsUseCase";
 
 export default async function HomePage() {
   // 4. Execução paralela de alta performance no servidor (I/O em paralelo)
