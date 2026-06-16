@@ -17,19 +17,22 @@ export function TicketRow({ ticket }: TicketRowProps) {
       className="grid grid-cols-12 items-center w-full px-4 py-4 bg-zinc-900/20 border border-zinc-900 hover:border-blue-500/40 hover:bg-zinc-900/50 rounded-xl transition-all group cursor-pointer"
     >
       {/* 1. PROTOCOLO (Ocupa 2 de 12 colunas) */}
-      <div className="col-span-2">
-        <span className="inline-block text-xs font-mono font-bold text-blue-400 bg-blue-950/30 px-2 py-1 rounded border border-blue-900/40 group-hover:border-blue-500/40 transition-colors">
+      <div className="col-span-3 flex items-center">
+        <span className="inline-flex items-center justify-center text-xs font-mono font-bold text-blue-400 bg-blue-950/35 px-2.5 py-1 rounded border border-blue-900/40 whitespace-nowrap">
           {ticket.protocolo}
         </span>
       </div>
 
-      {/* 2. ASSUNTO / CLIENTE (Ocupa 5 de 12 colunas) */}
-      <div className="col-span-5 space-y-1 pr-4">
+      {/* 2. ASSUNTO / CLIENTE (🟢 Mudou de col-span-5 para col-span-4) */}
+      <div className="col-span-4 space-y-1 pr-4">
         <h3 className="text-sm font-bold text-zinc-100 group-hover:text-blue-400 transition-colors truncate">
           {ticket.titulo}
         </h3>
-        <p className="text-xs text-zinc-500">
-          Aberto por <span className="text-zinc-400 font-medium">{ticket.clienteNome}</span>
+        <p className="text-xs text-zinc-500 truncate">
+          Aberto por{" "}
+          <span className="text-zinc-400 font-medium">
+            {ticket.clienteNome}
+          </span>
         </p>
       </div>
 

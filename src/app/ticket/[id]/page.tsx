@@ -29,7 +29,7 @@ export default async function PaginaDetalheChamado({ params }: PaginaProps) {
       getHistoricoChatUseCase(ticketId),
     ]);
 
-    const usuarioAtualId = "id-do-usuario-atual";
+    const usuarioAtualId = "7ffac769-c3ea-433b-b883-9bf473b508c0";
 
     return (
       <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 flex flex-col gap-6">
