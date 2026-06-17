@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
-import * as schema from "../schema/ticket";
+import * as schema from "../schemas/schema";
 
 // Configuração para evitar múltiplas conexões no Hot Reload do Next.js
 const globalForDrizzle = globalThis as unknown as {

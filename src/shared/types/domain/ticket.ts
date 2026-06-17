@@ -11,6 +11,8 @@ export interface Ticket {
   tecnicoId: string | null; // Nulo até que um técnico assuma (Workflow)
   statusId: number;
   prioridadeId: number;
+  tempoRestante?: string; // Ex: "12 min restantes" ou "Estourado há 5m"
+  isEstourado?: boolean; // Indica se o tempo já estourou (para destaque visual)
   dataCriacao: Date;
   dataAtualizacao: Date;
   

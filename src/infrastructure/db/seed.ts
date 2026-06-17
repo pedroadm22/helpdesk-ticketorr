@@ -1,56 +1,37 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
-import * as schema from "../schema/ticket";
-
-const sqlite = new Database("sqlite.db");
-const db = drizzle(sqlite, { schema });
+// src/infrastructure/db/seed.ts
+import { db } from "./index"; // Ajuste para o caminho do seu arquivo de conexão
+import { statusChamado, prioridadesChamado, users } from "../schemas/schema";
 
 async function main() {
-  console.log("🌱 Populando o banco de dados...");
+  console.log("🌱 Populando banco de dados com dados iniciais...");
 
-  // 1. Limpa os dados antigos para evitar duplicidade ao rodar o seed
-  await db.delete(schema.tickets);
-  await db.delete(schema.users);
+  // 1. Limpa ou insere os Status padrões de Helpdesk
+  // Forçamos os IDs para garantir que casem com as Actions
+  await db.insert(statusChamado).values([
+    { id: 1, nome: "Aberto" },
+    { id: 2, nome: "Em Atendimento" },
+    { id: 3, nome: "Pendente" },
+    { id: 4, nome: "Resolvido" },
+    { id: 5, nome: "Fechado" },
+  ]).onConflictDoNothing();
 
-  // 2. Cria os usuários iniciais (Um Técnico e um Cliente)
-  const [tecnico] = await db.insert(schema.users).values({
-    nome: "Pedro Lucas",
-    email: "pedro.lucas@ticketorr.com",
-    perfil: "TECNICO",
-  }).returning(); // O .returning() traz o ID gerado pelo banco na hora
+  // 2. Popula as Prioridades com IDs sequenciais previsíveis
+  await db.insert(prioridadesChamado).values([
+    { id: 1, nome: "Baixa" },
+    { id: 2, nome: "Média" },
+    { id: 3, nome: "Alta" },
+    { id: 4, nome: "Crítica" },
+  ]).onConflictDoNothing();
 
-  const [cliente] = await db.insert(schema.users).values({
-    nome: "Empresa Parceira LTDA",
-    email: "suporte@parceiro.com",
+  // 3. Cria um usuário de teste caso você precise testar a Action manualmente
+  await db.insert(users).values({
+    id: "7ffac769-c3ea-433b-b883-9bf473b508c0", // Mude para o ID que você está enviando no payload da Action
+    nome: "Usuário de Teste",
+    email: "teste@ticketorr.com",
     perfil: "CLIENTE",
-  }).returning();
+  }).onConflictDoNothing();
 
-  console.log("👥 Usuários criados com sucesso!");
-
-  // 3. Cria os primeiros chamados de teste ligados a esses usuários
-  await db.insert(schema.tickets).values([
-    {
-      protocolo: "TK-2026-001",
-      titulo: "Servidor de Monitoramento Offline",
-      descricao: "O container do Zabbix parou de responder após queda de energia no datacenter local.",
-      clienteId: cliente.id,
-      tecnicoId: tecnico.id,
-      statusId: 2, // Em Atendimento
-      prioridadeId: 4, // Crítica
-    },
-    {
-      protocolo: "TK-2026-002",
-      titulo: "Instalação de certificado SSL",
-      descricao: "Solicitação para renovar e configurar o certificado HTTPS na API de produção.",
-      clienteId: cliente.id,
-      tecnicoId: null, // Aguardando triagem na fila
-      statusId: 1, // Aberto
-      prioridadeId: 2, // Média
-    }
-  ]);
-
-  console.log("🎫 Chamados de teste criados com sucesso!");
-  console.log("✨ Banco de dados estruturado e pronto para o combate!");
+  console.log("✅ Banco de dados sincronizado e pronto para operação!");
 }
 
 main().catch((err) => {

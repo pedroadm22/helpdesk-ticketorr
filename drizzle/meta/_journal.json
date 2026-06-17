@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1781541703930,
+      "tag": "0000_easy_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1781544986718,
+      "tag": "0001_sleepy_xorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781564124813,
+      "tag": "0002_even_banshee",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1781590364786,
+      "tag": "0003_curly_joshua_kane",
+      "breakpoints": true
+    }
+  ]
+}

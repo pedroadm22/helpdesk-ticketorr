@@ -1,30 +1,63 @@
+"use client"; // 🚨 Obrigatório para usar o usePathname
+
 import Link from "next/link";
-import { LayoutDashboard, Ticket } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Kanban, Ticket, Home, Settings } from "lucide-react";
+import { cn } from "@/shared/utils/cn";
 
 export function Sidebar() {
+  const pathname = usePathname();
+
+  // 1. Centralizamos os links em um array para evitar repetição de código
+  const itensMenu = [
+    { label: "Dashboard", href: "/", icon: Kanban },
+    { label: "Chamados", href: "/ticket", icon: Ticket },
+  ];
+
   return (
-    <aside className="w-64 bg-zinc-900 border-r border-zinc-800 p-6 flex flex-col gap-6">
-      {/* Menu de Navegação */}
-      <nav className="flex flex-col gap-2">
-        
-        {/* Botão 1: Volta para a Home (Dashboard) */}
-        <Link 
-          href="/" 
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
-        >
-          <LayoutDashboard size={18} />
-          <span>Dashboard</span>
-        </Link>
+    <aside className="w-64 h-screen bg-zinc-950 border-r border-zinc-900 p-4 space-y-6">
+      <div className="px-2 py-4">
+        <span className="text-lg font-bold tracking-wider text-blue-500 uppercase">
+          Ticketorr
+        </span>
+      </div>
 
-        {/* Botão 2: Vai para a Fila de Chamados */}
-        <Link 
-          href="/chamados" 
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-zinc-800 transition-colors"
-        >
-          <Ticket size={18} />
-          <span>Fila de Chamados</span>
-        </Link>
+      <nav className="space-y-1">
+        {itensMenu.map((item) => {
+          // 2. A MÁGICA AQUI: Verifica se a rota atual começa com o href do item
+          // O .startsWith garante que se você estiver em "/tickets/novo", o botão "/tickets" continue ativo!
+          const itemAtivo = item.href === "/" 
+            ? pathname === "/" 
+            : pathname.startsWith(item.href);
 
+          const Icone = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                // Classes Base (Layout e comportamento comum para todos os botões)
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 group",
+                
+                // Classes quando o item ESTÁ SELECIONADO
+                itemAtivo
+                  ? "bg-blue-600/10 text-blue-400 border border-blue-500/20"
+                  
+                  : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border border-transparent"
+              )}
+            >
+              <Icone 
+                size={18} 
+                className={cn(
+                  "transition-colors",
+                  itemAtivo ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300"
+                )} 
+              />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
