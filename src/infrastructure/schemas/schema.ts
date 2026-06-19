@@ -6,6 +6,7 @@ export const users = sqliteTable("users", {
   nome: text("nome").notNull(),
   email: text("email").notNull().unique(),
   perfil: text("perfil", { enum: ["CLIENTE", "TECNICO", "ADMIN"] }).notNull(),
+  senhaHash: text("senha").notNull(),
 });
 
 // Tabela Auxiliar de Status
@@ -26,9 +27,16 @@ export const tickets = sqliteTable("tickets", {
   protocolo: text("protocolo").notNull().unique(),
   titulo: text("titulo").notNull(),
   descricao: text("descricao").notNull(),
-  clienteId: text("cliente_id").notNull().references(() => users.id),
-  statusId: integer("status_id").notNull().references(() => statusChamado.id).default(1),
-  prioridadeId: integer("prioridade_id").notNull().references(() => prioridadesChamado.id),
+  clienteId: text("cliente_id")
+    .notNull()
+    .references(() => users.id),
+  statusId: integer("status_id")
+    .notNull()
+    .references(() => statusChamado.id)
+    .default(1),
+  prioridadeId: integer("prioridade_id")
+    .notNull()
+    .references(() => prioridadesChamado.id),
   dataLimiteSla: integer("data_limite_sla", { mode: "timestamp" }).notNull(),
   dataCriacao: integer("data_criacao", { mode: "timestamp" }).notNull(),
   dataAtualizacao: integer("data_atualizacao", { mode: "timestamp" }).notNull(),
@@ -37,8 +45,12 @@ export const tickets = sqliteTable("tickets", {
 // Tabela de Mensagens do Chat (que criamos recentemente)
 export const mensagensChat = sqliteTable("mensagens_chat", {
   id: text("id").primaryKey(),
-  ticketId: text("ticket_id").notNull().references(() => tickets.id),
-  remetenteId: text("remetente_id").notNull().references(() => users.id),
+  ticketId: text("ticket_id")
+    .notNull()
+    .references(() => tickets.id),
+  remetenteId: text("remetente_id")
+    .notNull()
+    .references(() => users.id),
   conteudo: text("conteudo").notNull(),
   criadoEm: integer("criado_em", { mode: "timestamp" }).notNull(),
 });

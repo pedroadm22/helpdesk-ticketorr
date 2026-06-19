@@ -1,7 +1,6 @@
 // src/infrastructure/sockets/server.ts
 import { createServer } from "http";
 import { Server } from "socket.io";
-import cors from "cors";
 import { enviarMensagemUseCase } from "@/modules/tickets/use-cases/EnviarMensagemUseCase";
 import { EnviarMensagemSchema } from "@/modules/tickets/dto/MensagemEnviadaDto";
 
