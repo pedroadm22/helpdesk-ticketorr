@@ -21,3 +21,4 @@ export function ChatBoxContainer({ ticketId, usuarioAtualId, historicoInicial }:
     />
   );
 }
+

@@ -19,6 +19,7 @@ export function LoginCard() {
           id="email"
           label="E-mail corporativo"
           type="email"
+          autoComplete="off"
           placeholder="nome@empresa.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -31,6 +32,7 @@ export function LoginCard() {
           label="Senha"
           type="password"
           placeholder="••••••••"
+          autoComplete="current-password"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
           required
