@@ -22,10 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6 p-6 min-h-screen bg-zinc-950 text-zinc-100">
-      {/* ─── BANNER DE CRISE (GLOBAL) ─── */}
       {temUrgencias && <UrgentAlert tickets={analytics.ticketsUrgentes} />}
-
-      {/* ─── CABEÇALHO DA PÁGINA ─── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
