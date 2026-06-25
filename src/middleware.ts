@@ -16,8 +16,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Se o usuário já estiver logado e tentar acessar as telas de login/cadastro,
-  // nós jogamos ele direto para dentro do painel
   if ((url.pathname === "/login" || url.pathname === "/cadastro") && sessionToken) {
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
