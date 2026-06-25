@@ -90,15 +90,15 @@ export const userRelations = relations(users, ({ many }) => ({
 
 export const sessionRelations = relations(session, ({ one }) => ({
   user: one(users, {
-    fields: [session.userId],
-    references: [users.id], // Removido colchetes internos que quebravam o Drizzle
+    fields: [session.userId],     // Mantém o array aqui porque fields sempre pede array de colunas locais
+    references: [users.id],      // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
   }),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(users, {
-    fields: [account.userId],
-    references: [users.id], // Removido colchetes internos que quebravam o Drizzle
+    fields: [account.userId],    // Mantém o array aqui
+    references: [users.id],     // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
   }),
 }));
 

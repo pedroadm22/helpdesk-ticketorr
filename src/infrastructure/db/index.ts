@@ -1,8 +1,7 @@
-// src/infrastructure/db.ts
-import { drizzle } from "drizzle-orm/better-sqlite3"; 
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
-import * as schema from "../schemas/schema"; 
 
+// Cria a conexão direta com o arquivo SQLite na raiz do projeto
 const sqlite = new Database("sqlite.db");
 
-export const db = drizzle(sqlite, { schema }); // O db global precisa do schema completo para as queries funcionarem
+export const db = drizzle(sqlite);

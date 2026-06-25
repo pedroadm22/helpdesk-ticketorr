@@ -1,18 +1,16 @@
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
-import * as schema from "../schemas/schema";
-import { auth } from "../auth";
+import * as schema from "../schemas/schema"; // Sobe uma pasta para ir para schemas
+import { auth } from "../auth"; // Sobe uma pasta para ir para a raiz da infraestrutura
 import { eq } from "drizzle-orm";
 
-const sqlite = new Database("sqlite.db"); // Certifique-se de usar o mesmo caminho do seu db.ts
-const db = drizzle(sqlite, { schema });
+const sqlite = new Database("sqlite.db");
+const db = drizzle(sqlite); // Inicializa localmente para garantir o escopo limpo
 
 async function main() {
   console.log("🌱 Iniciando o seeding do banco de dados...");
-
   try {
-    // 1. Popula as Tabelas Auxiliares de Status (se estiverem vazias)
-    console.log("📦 Inserindo status de chamados...");
+    // Inserindo Status
     const statusExistentes = await db.select().from(schema.statusChamado);
     if (statusExistentes.length === 0) {
       await db.insert(schema.statusChamado).values([
@@ -24,8 +22,7 @@ async function main() {
       ]);
     }
 
-    // 2. Popula as Tabelas Auxiliares de Prioridade (se estiverem vazias)
-    console.log("📦 Inserindo prioridades...");
+    // Inserindo Prioridades
     const prioridadesExistentes = await db.select().from(schema.prioridadesChamado);
     if (prioridadesExistentes.length === 0) {
       await db.insert(schema.prioridadesChamado).values([
@@ -36,10 +33,7 @@ async function main() {
       ]);
     }
 
-    // 3. Criando Usuários de Teste através da API do Better Auth (para garantir o hash da senha)
-    console.log("👤 Criando usuários de teste...");
-
-    // Teste 1: Usuário Técnico de TI
+    // Criando Usuário Técnico via Better Auth API
     const tecnicoEmail = "tecnico@ticketorr.com";
     const tecnicoExiste = await db.select().from(schema.users).where(eq(schema.users.email, tecnicoEmail));
     
@@ -52,40 +46,33 @@ async function main() {
         },
       });
 
-      // Como o Better Auth cria por padrão como CLIENTE, nós atualizamos o papel (role) para TECNICO
       if (tecnicoNovo) {
         await db
           .update(schema.users)
           .set({ role: "TECNICO" })
           .where(eq(schema.users.id, tecnicoNovo.user.id));
-        console.log(`✅ Técnico criado com sucesso! (ID: ${tecnicoNovo.user.id})`);
+        console.log(`✅ Técnico criado! ID: ${tecnicoNovo.user.id}`);
       }
-    } else {
-      console.log("ℹ️ Usuário técnico já existe.");
     }
 
-    // Teste 2: Usuário Cliente Padrão
+    // Criando Usuário Cliente via Better Auth API
     const clienteEmail = "cliente@exemplo.com";
     const clienteExiste = await db.select().from(schema.users).where(eq(schema.users.email, clienteEmail));
 
     if (clienteExiste.length === 0) {
-      const clienteNovo = await auth.api.signUpEmail({
+      await auth.api.signUpEmail({
         body: {
           email: clienteEmail,
           password: "ClienteSenha123",
           name: "Pedro Lucas",
         },
       });
-      if (clienteNovo) {
-        console.log(`✅ Cliente criado com sucesso! (ID: ${clienteNovo.user.id})`);
-      }
-    } else {
-      console.log("ℹ️ Usuário cliente já existe.");
+      console.log(`✅ Cliente criado com sucesso!`);
     }
 
-    console.log("✨ Seeding finalizado com sucesso!");
+    console.log("✨ Seeding finalizado!");
   } catch (error) {
-    console.error("❌ Erro ao rodar o seed:", error);
+    console.error("❌ Erro no seed:", error);
     process.exit(1);
   } finally {
     sqlite.close();
