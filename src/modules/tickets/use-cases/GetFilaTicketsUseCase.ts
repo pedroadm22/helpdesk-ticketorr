@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db";
-import { tickets, users } from "@/infrastructure/schemas/schema";
+import { tickets, user } from "@/infrastructure/schemas/schema";
 import { desc, eq } from "drizzle-orm";
 import { ListaFilaTicketsDto } from "../dto/ListaFilaTicketsDto";
 
@@ -12,10 +12,10 @@ export async function getFilaTicketsUseCase(): Promise<ListaFilaTicketsDto> {
       titulo: tickets.titulo,
       statusId: tickets.statusId,
       dataCriacao: tickets.dataCriacao,
-      clienteNome: users.nome, // Capturado através do relacionamento de tabelas
+      clienteNome: user.name, // Capturado através do relacionamento de tabelas
     })
     .from(tickets)
-    .leftJoin(users, eq(tickets.clienteId, users.id)) // Une a tabela de tickets com a de usuários
+    .leftJoin(user, eq(tickets.clienteId, user.id)) // Une a tabela de tickets com a de usuários
     .orderBy(desc(tickets.dataCriacao)); // Ordena sempre do mais recente para o mais antigo
 
   // 2. Mapeamos os dados brutos do banco para o formato exato exigido pelo DTO

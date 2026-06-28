@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { hashSync } from "bcrypt-ts";
 import { db } from "@/infrastructure/db";
-import { users } from "@/infrastructure/schemas/schema";
+import { user } from "@/infrastructure/schemas/schema";
 
 // 1. Criamos o molde de validação (Schema do Zod)
 const criarUsuarioSchema = z.object({
@@ -20,13 +20,12 @@ export async function registrarUsuario(payload: any) {
 
   // E salvar no banco sem o TypeScript reclamar
   const [novoUsuario] = await db
-    .insert(users)
+    .insert(user)
     .values({
       id: crypto.randomUUID(), 
-      nome: dadosValidados.nome,   // 👈 Agora ele sabe o que é dadosValidados!
+      name: dadosValidados.nome,   // 👈 Agora ele sabe o que é dadosValidados!
       email: dadosValidados.email, // 👈 Aqui também!
-      senhaHash: senhaCriptografada,
-      perfil: "CLIENTE",
+      role: "CLIENTE",
     })
     .returning();
 

@@ -5,7 +5,7 @@ import { relations, sql } from "drizzle-orm";
 // MÓDULO DE AUTENTICAÇÃO (PADRÃO BETTER AUTH)
 // ==========================================
 
-export const users = sqliteTable("user", {
+export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -39,7 +39,7 @@ export const session = sqliteTable("session", {
   userAgent: text("user_agent"), // Corrigido para o singular
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }), // Corrigido para o singular
+    .references(() => user.id, { onDelete: "cascade" }), // Corrigido para o singular
 });
 
 export const account = sqliteTable("account", {
@@ -48,7 +48,7 @@ export const account = sqliteTable("account", {
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }), // Corrigido para o singular
+    .references(() => user.id, { onDelete: "cascade" }), // Corrigido para o singular
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -83,22 +83,22 @@ export const verification = sqliteTable("verification", {
 });
 
 // Relacionamentos corrigidos (Sem os colchetes no 'references' do método 'one')
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [session.userId],     // Mantém o array aqui porque fields sempre pede array de colunas locais
-    references: [users.id],      // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
+    references: [user.id],      // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
   }),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [account.userId],    // Mantém o array aqui
-    references: [users.id],     // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
+    references: [user.id],     // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
   }),
 }));
 
@@ -123,7 +123,7 @@ export const tickets = sqliteTable("tickets", {
   descricao: text("descricao").notNull(),
   clienteId: text("cliente_id")
     .notNull()
-    .references(() => users.id), // Apontando para 'users.id' atualizado
+    .references(() => user.id), // Apontando para 'user.id' atualizado
   statusId: integer("status_id")
     .notNull()
     .references(() => statusChamado.id)
@@ -143,7 +143,7 @@ export const mensagensChat = sqliteTable("mensagens_chat", {
     .references(() => tickets.id),
   remetenteId: text("remetente_id")
     .notNull()
-    .references(() => users.id), // Apontando para 'users.id' atualizado
+    .references(() => user.id), // Apontando para 'user.id' atualizado
   conteudo: text("conteudo").notNull(),
   criadoEm: integer("criado_em", { mode: "timestamp_ms" }).notNull(),
 });

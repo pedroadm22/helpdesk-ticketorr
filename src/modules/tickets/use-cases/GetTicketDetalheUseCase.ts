@@ -1,6 +1,6 @@
 // src/modules/tickets/usecases/GetTicketDetalheUseCase.ts
 import { db } from "@/infrastructure/db";
-import { tickets, statusChamado, prioridadesChamado, users } from "@/infrastructure/schemas/schema";
+import { tickets, statusChamado, prioridadesChamado, user } from "@/infrastructure/schemas/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -20,17 +20,17 @@ export async function getTicketDetalheUseCase(ticketId: string) {
       descricao: tickets.descricao,
       dataLimiteSla: tickets.dataLimiteSla,
       dataCriacao: tickets.dataCriacao,
-      status: statusChamado.nome,       // Pega o texto (ex: "Aberto")
-      prioridade: prioridadesChamado.nome, // Pega o texto (ex: "Alta")
+      status: statusChamado.name,       // Pega o texto (ex: "Aberto")
+      prioridade: prioridadesChamado.name, // Pega o texto (ex: "Alta")
       cliente: {
-        id: users.id,
-        nome: users.nome,
+        id: user.id,
+        name: user.name,
       },
     })
     .from(tickets)
     .innerJoin(statusChamado, eq(tickets.statusId, statusChamado.id))
     .innerJoin(prioridadesChamado, eq(tickets.prioridadeId, prioridadesChamado.id))
-    .innerJoin(users, eq(tickets.clienteId, users.id))
+    .innerJoin(user, eq(tickets.clienteId, user.id))
     .where(eq(tickets.id, idValido));
 
   // 3. Se o ID não existir no banco, dispara o erro que a nossa página vai capturar

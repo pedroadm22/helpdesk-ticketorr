@@ -34,30 +34,30 @@ async function main() {
     }
 
     // Criando Usuário Técnico via Better Auth API
-    const tecnicoEmail = "tecnico@ticketorr.com";
-    const tecnicoExiste = await db.select().from(schema.users).where(eq(schema.users.email, tecnicoEmail));
+    const tecnicoEmail = "tecnico123@ticketorr.com";
+    const tecnicoExiste = await db.select().from(schema.user).where(eq(schema.user.email, tecnicoEmail));
     
     if (tecnicoExiste.length === 0) {
       const tecnicoNovo = await auth.api.signUpEmail({
         body: {
           email: tecnicoEmail,
-          password: "SenhaSegura123",
+          password: "senha123456",
           name: "Suporte Técnico",
         },
       });
 
       if (tecnicoNovo) {
         await db
-          .update(schema.users)
+          .update(schema.user)
           .set({ role: "TECNICO" })
-          .where(eq(schema.users.id, tecnicoNovo.user.id));
+          .where(eq(schema.user.id, tecnicoNovo.user.id));
         console.log(`✅ Técnico criado! ID: ${tecnicoNovo.user.id}`);
       }
     }
 
     // Criando Usuário Cliente via Better Auth API
     const clienteEmail = "cliente@exemplo.com";
-    const clienteExiste = await db.select().from(schema.users).where(eq(schema.users.email, clienteEmail));
+    const clienteExiste = await db.select().from(schema.user).where(eq(schema.user.email, clienteEmail));
 
     if (clienteExiste.length === 0) {
       await auth.api.signUpEmail({

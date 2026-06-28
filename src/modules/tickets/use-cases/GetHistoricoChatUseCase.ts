@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db";
-import { mensagensChat, users } from "@/infrastructure/schemas/schema";
+import { mensagensChat, user } from "@/infrastructure/schemas/schema";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
 
@@ -16,13 +16,13 @@ export async function getHistoricoChatUseCase(ticketId: string) {
       conteudo: mensagensChat.conteudo,
       criadoEm: mensagensChat.criadoEm,
       remetente: {
-        id: users.id,
-        nome: users.nome,
-        perfil: users.perfil, // CLIENTE, TECNICO ou ADMIN
+        id: user.id,
+        nome: user.name,
+        perfil: user.role, // CLIENTE, TECNICO ou ADMIN
       },
     })
     .from(mensagensChat)
-    .innerJoin(users, eq(mensagensChat.remetenteId, users.id))
+    .innerJoin(user, eq(mensagensChat.remetenteId, user.id))
     .where(eq(mensagensChat.ticketId, idValido))
     .orderBy(asc(mensagensChat.criadoEm)); // Mensagens antigas primeiro, as novas no fim
 
