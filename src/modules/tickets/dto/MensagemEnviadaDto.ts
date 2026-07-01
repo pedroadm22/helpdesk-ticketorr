@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 export const EnviarMensagemSchema = z.object({
-  // 🟢 CORRIGIDO: Passando a string direto dentro do .uuid()
-  ticketId: z.string().uuid("O ID do ticket deve ser um UUID válido."),
-  remetenteId: z.string().uuid("O ID do remetente deve ser um UUID válido."),
-  
-  conteudo: z.string().min(1, { message: "A mensagem não pode estar vazia." }).trim(),
+  ticketId: z.string(), // Deixe apenas string se o ticket não for UUID
+  remetenteId: z.string(), // 🌟 Mudado de .uuid() para apenas .string()
+  conteudo: z.string().min(1),
 });
 
 export type EnviarMensagemDto = z.infer<typeof EnviarMensagemSchema>;

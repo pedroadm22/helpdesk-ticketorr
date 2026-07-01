@@ -9,14 +9,14 @@ export async function middleware(request: NextRequest) {
 
   // 2. Proteção das rotas do Painel (/dashboard)
   if (url.pathname.startsWith("/dashboard")) {
-    // Se o usuário não tiver o token de sessão, barra o acesso e joga para o login
+    // Se o usuário não tiver o token de sessão, barra o acesso e joga para o 
     if (!sessionToken) {
-      url.pathname = "/login";
+      url.pathname = "/";
       return NextResponse.redirect(url);
     }
   }
 
-  if ((url.pathname === "/login" || url.pathname === "/cadastro") && sessionToken) {
+  if ((url.pathname === "/" || url.pathname === "/cadastro") && sessionToken) {
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*", 
-    "/login", 
+    "/", 
     "/cadastro"
   ],
 };

@@ -1,21 +1,36 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { auth } from "@/infrastructure/auth"; // 🌟 Importa o motor do Better Auth do servidor
+import { headers } from "next/headers"; // Necessário para o Better Auth ler os cookies na Action
 import { criarTicketUseCase } from "../use-cases/CriarTicketUseCase";
 import { criarTicketSchema } from "../dto/CriarTicketDto";
 
 export async function criarTicketAction(formData: FormData) {
-  // 1. Extrai os dados brutos de dentro do FormData do HTML
+  // 1. Recupera a sessão do usuário logado de forma real
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  // Se por algum motivo bizarro o usuário não estiver logado, barra na hora
+  if (!session || !session.user) {
+    return {
+      success: false,
+      message: "Sessão expirada. Faça login novamente.",
+    };
+  }
+
+  // 2. Extrai os dados brutos e converte tipos se necessário
   const dadosBrutos = {
     titulo: formData.get("titulo"),
     descricao: formData.get("descricao"),
-    prioridadeId: formData.get("prioridadeId"),
+    // Converte para número caso o seu Schema do Zod/Banco espere um Inteiro
+    prioridadeId: Number(formData.get("prioridadeId")), 
   };
 
-  // 2. Validação Rígida com o Schema do Zod
+  // 3. Validação Rígida com o Schema do Zod
   const resultadoValidacao = criarTicketSchema.safeParse(dadosBrutos);
 
-  // Se a validação falhar, retorna os erros formatados por campo para o Hook mapear na tela
   if (!resultadoValidacao.success) {
     return {
       success: false,
@@ -24,21 +39,17 @@ export async function criarTicketAction(formData: FormData) {
   }
 
   try {
-    // 3. Identificação do Cliente (Tenant/Usuário)
-    // ID mocado temporariamente. Quando você colocar o NextAuth, pegamos da sessão do usuário logado.
-    const clienteIdMocado = "7ffac769-c3ea-433b-b883-9bf473b508c0"; 
-
-    // 4. Chama o UseCase inteligente (que gera protocolo dinâmico e calcula SLA)
+    // 4. Chama o UseCase passando o ID real do usuário vindo do Better Auth!
     const ticketId = await criarTicketUseCase({
       titulo: resultadoValidacao.data.titulo,
       descricao: resultadoValidacao.data.descricao,
       prioridadeId: resultadoValidacao.data.prioridadeId,
-      clienteId: clienteIdMocado,
+      clienteId: session.user.id, // 🌟 DINÂMICO: Fim do ID mocado!
     });
 
     // 5. Destruição de Cache (On-Demand Revalidation)
-    // Força o Next.js a atualizar os dados do Dashboard e da Fila na hora!
-    revalidatePath("/");
+    // Atualiza os caminhos baseados na estrutura que corrigimos
+    revalidatePath("/dashboard");
     revalidatePath("/ticket");
 
     return { 
@@ -47,12 +58,11 @@ export async function criarTicketAction(formData: FormData) {
     };
 
   } catch (error) {
-    console.dir(error);
     console.error("❌ Erro catastrófico na Action de criar chamado:", error);
     
     return { 
       success: false, 
-      message: "Não foi possível salvar o chamado no banco de dados. Tente novamente." 
+      message: "Não foi possível salvar o chamado no banco de dados. Verifique os campos e tente novamente." 
     };
   }
 }

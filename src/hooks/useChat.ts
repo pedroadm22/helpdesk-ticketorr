@@ -14,7 +14,11 @@ interface Mensagem {
   };
 }
 
-export function useChat(ticketId: string, usuarioAtualId: string, historicoInicial: Mensagem[]) {
+export function useChat(
+  ticketId: string,
+  usuarioAtualId: string,
+  historicoInicial: Mensagem[],
+) {
   const [mensagens, setMensagens] = useState<Mensagem[]>(historicoInicial);
   const socketRef = useRef<Socket | null>(null);
 
@@ -48,11 +52,17 @@ export function useChat(ticketId: string, usuarioAtualId: string, historicoInici
       conteudo: conteudo.trim(),
     };
 
+    // 🌟 SCANNER DE LOG: Adicione isso aqui para inspecionar os IDs no navegador!
+    console.log("=========================================");
+    console.log("🚀 DISPARANDO EVENTO VIA SOCKET DO FRONT-END:");
+    console.log("Conteúdo do Ticket ID:", payload.ticketId);
+    console.log("Conteúdo do Remetente ID (Usuário):", payload.remetenteId);
+    console.log("=========================================");
+
     // Dispara o evento via WebSocket
     socketRef.current.emit("enviar_mensagem", payload, (response: any) => {
       if (response?.status === "error") {
         console.error("Erro ao entregar mensagem:", response.message);
-        // Aqui você poderia colocar um estado de erro na tela se quisesse
       }
     });
   };
