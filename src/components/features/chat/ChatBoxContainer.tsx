@@ -27,7 +27,11 @@ export function ChatBoxContainer({
   historicoInicial,
 }: ChatBoxContainerProps) {
   // 1. Conecta ao Hook injetando o ID real do usuário autenticado
-  const { mensagens, enviarMensagem } = useChat(ticketId, usuarioAtualId, historicoInicial);
+  const { mensagens, enviarMensagem } = useChat(
+    ticketId,
+    usuarioAtualId,
+    historicoInicial,
+  );
   const [novoConteudo, setNovoConteudo] = useState("");
 
   // 2. Trata o envio do formulário de chat
@@ -43,7 +47,9 @@ export function ChatBoxContainer({
     <div className="flex flex-col h-125 w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
       {/* Topo do Chat */}
       <div className="bg-zinc-950 px-4 py-3 border-b border-zinc-800">
-        <h3 className="text-sm font-semibold text-zinc-200">Histórico de Conversação</h3>
+        <h3 className="text-sm font-semibold text-zinc-200">
+          Histórico de Conversação
+        </h3>
       </div>
 
       {/* Área de Mensagens de Rolagem */}
@@ -54,8 +60,8 @@ export function ChatBoxContainer({
           </div>
         ) : (
           mensagens.map((msg) => {
-            // Verifica se a mensagem foi enviada pelo usuário logado no momento
-            const ehMinha = msg.remetente.id == usuarioAtualId;
+            // 🌟 CORREÇÃO: Adicionado o ?. para não quebrar a tela se o remetente sumir
+            const ehMinha = msg.remetente?.id === usuarioAtualId;
 
             return (
               <div
@@ -63,7 +69,9 @@ export function ChatBoxContainer({
                 className={`flex flex-col ${ehMinha ? "items-end" : "items-start"}`}
               >
                 <span className="text-xs text-zinc-500 mb-1 px-1">
-                  {msg.remetente.nome} • {msg.remetente.perfil}
+                  {/* Usa um fallback caso nome ou perfil venham vazios */}
+                  {msg.remetente?.nome || "Sistema"} •{" "}
+                  {msg.remetente?.perfil || "SISTEMA"}
                 </span>
                 <div
                   className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${
@@ -79,9 +87,11 @@ export function ChatBoxContainer({
           })
         )}
       </div>
-
       {/* Caixa de Entrada (Formulário) */}
-      <form onSubmit={handleEnviar} className="p-3 bg-zinc-950 border-t border-zinc-800 flex gap-2">
+      <form
+        onSubmit={handleEnviar}
+        className="p-3 bg-zinc-950 border-t border-zinc-800 flex gap-2"
+      >
         <input
           type="text"
           value={novoConteudo}

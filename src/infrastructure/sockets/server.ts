@@ -30,31 +30,36 @@ io.on("connection", (socket) => {
   });
 
   // Evento 2: Receber mensagem do front-end e propagar
-  // Evento 2: Receber mensagem do front-end e propagar
   socket.on("enviar_mensagem", async (payload, callback) => {
     try {
       // 1. Validação imediata com o Zod na porta de entrada do servidor
       const dadosValidados = EnviarMensagemSchema.parse(payload);
 
-      // 🌟 LOG DE INVESTIGAÇÃO: Vamos ver exatamente o que o front-end está mandando!
-      console.log("=========================================");
-      console.log("📥 DADOS CHEGANDO NO SERVIDOR DE SOCKET:");
-      console.log("ID do Ticket enviado:", dadosValidados.ticketId);
-      console.log("ID do Remetente enviado:", dadosValidados.remetenteId);
-      console.log("Conteúdo:", dadosValidados.conteudo);
-      console.log("=========================================");
-
       // 2. Persiste a mensagem no banco de dados SQLite via Use Case
-      const novaMensagem = await enviarMensagemUseCase(dadosValidados);
+      const resultadoBanco = await enviarMensagemUseCase(dadosValidados);
 
-      // 3. Distribui a mensagem exclusivamente para as pessoas daquela sala (room)
-      io.to(dadosValidados.ticketId).emit("receber_mensagem", novaMensagem);
+      // 🌟 SOLUÇÃO: Monta o formato idêntico ao histórico do chat para o front-end entender quem enviou!
+      const novaMensagemFormatada = {
+        id: resultadoBanco.id,
+        conteudo: resultadoBanco.conteudo,
+        criadoEm: resultadoBanco.criadoEm || new Date().toISOString(),
+        remetente: {
+          id: dadosValidados.remetenteId, // O ID real do Better Auth que veio do front
+          nome: socket.data?.user?.name || "Usuário", // Se tiver salvo no socket, se não deixa genérico
+          perfil: socket.data?.user?.role || "CLIENTE",
+        },
+      };
 
+      // 3. Distribui a mensagem formatada para as pessoas daquela sala (room)
+      io.to(dadosValidados.ticketId).emit(
+        "receber_mensagem",
+        novaMensagemFormatada,
+      );
+
+      // 4. Confirma sucesso
       if (callback) callback({ status: "ok" });
     } catch (error: any) {
-      // Melhorado para printar o erro completo no terminal do Socket
-      console.error("❌ Erro ao processar mensagem no socket:", error);
-
+      console.error("❌ Erro ao processar mensagem no socket:", error.message);
       if (callback) {
         callback({
           status: "error",
