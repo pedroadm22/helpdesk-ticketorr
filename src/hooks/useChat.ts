@@ -1,65 +1,61 @@
-"use client";
-
-import { useEffect, useState, useRef } from "react";
+// src/hooks/useChat.ts
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-interface Mensagem {
-  id: string;
-  conteudo: string;
-  criadoEm: Date | string;
-  remetente: {
-    id: string;
-    nome: string;
-    perfil: "CLIENTE" | "TECNICO" | "ADMIN";
-  };
+interface UseChatProps {
+  ticketId: string;
+  usuarioAtualId: string; // 🌟 Certifique-se de receber o ID aqui no hook
 }
 
-export function useChat(
-  ticketId: string,
-  usuarioAtualId: string,
-  historicoInicial: Mensagem[],
-) {
-  const [mensagens, setMensagens] = useState<Mensagem[]>(historicoInicial);
+export function useChat({ ticketId, usuarioAtualId }: UseChatProps) {
+  const [mensagens, setMensagens] = useState<any[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    // 1. Conecta ao servidor dedicado de Sockets
-    socketRef.current = io("http://localhost:3001");
+    if (!ticketId || !usuarioAtualId) return;
 
-    // 2. Avisa ao servidor para entrar na sala deste ticket específico
-    socketRef.current.emit("entrar_chamado", { ticketId });
-
-    // 3. Escuta quando o servidor propaga uma nova mensagem
-    socketRef.current.on("receber_mensagem", (novaMensagem: Mensagem) => {
-      setMensagens((prev) => [...prev, novaMensagem]);
+    socketRef.current = io("http://localhost:3001", {
+      auth: {
+        usuarioId: usuarioAtualId, // 🔑 O middleware do servidor vai ler exatamente este campo!
+      },
     });
 
-    // Limpa a conexão quando o usuário sai da tela do chamado
+    // Evento 1: Assim que conecta física e estavelmente, entra na sala do ticket
+    socketRef.current.on("connect", () => {
+      console.log("🔌 Conectado ao servidor de chat de forma segura!");
+      
+      // Entra na sala específica deste chamado
+      socketRef.current?.emit("entrar_chamado", { ticketId });
+    });
+
+    // Evento 2: Escuta novas mensagens vindas do servidor
+    socketRef.current.on("receber_mensagem", (novaMensagem: any) => {
+      setMensagens((mensagensAtuais) => [...mensagensAtuais, novaMensagem]);
+    });
+
+    // Evento de erro de autenticação (Caso o middleware barre o usuário)
+    socketRef.current.on("connect_error", (error) => {
+      console.error("❌ Erro de conexão/autenticação no Socket:", error.message);
+    });
+
+    // Limpeza ao sair da página ou mudar de ticket
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
     };
-  }, [ticketId]);
+  }, [ticketId, usuarioAtualId]);
 
-  // 4. Função para disparar uma nova mensagem para o Back-end
+  // Função para o formulário disparar o envio
   const enviarMensagem = (conteudo: string) => {
     if (!conteudo.trim() || !socketRef.current) return;
 
     const payload = {
       ticketId,
-      remetenteId: usuarioAtualId,
+      remetenteId: usuarioAtualId, // Mantém o envio do ID para o UseCase salvar no SQLite
       conteudo: conteudo.trim(),
     };
 
-    // 🌟 SCANNER DE LOG: Adicione isso aqui para inspecionar os IDs no navegador!
-    console.log("=========================================");
-    console.log("🚀 DISPARANDO EVENTO VIA SOCKET DO FRONT-END:");
-    console.log("Conteúdo do Ticket ID:", payload.ticketId);
-    console.log("Conteúdo do Remetente ID (Usuário):", payload.remetenteId);
-    console.log("=========================================");
-
-    // Dispara o evento via WebSocket
     socketRef.current.emit("enviar_mensagem", payload, (response: any) => {
       if (response?.status === "error") {
         console.error("Erro ao entregar mensagem:", response.message);
@@ -67,5 +63,9 @@ export function useChat(
     });
   };
 
-  return { mensagens, enviarMensagem };
+  return {
+    mensagens,
+    setMensagens,
+    enviarMensagem,
+  };
 }
