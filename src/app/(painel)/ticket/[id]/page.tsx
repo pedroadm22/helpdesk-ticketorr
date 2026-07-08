@@ -15,7 +15,6 @@ interface PaginaProps {
 }
 
 export default async function PaginaDetailDocChamado({ params }: PaginaProps) {
-  // 1. Aguarda a Promise do params ser resolvida pelo Next.js
   const resolvedParams = await params;
   const ticketId = resolvedParams.id;
 
