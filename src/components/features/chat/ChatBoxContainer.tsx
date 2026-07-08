@@ -65,7 +65,7 @@ export function ChatBoxContainer({
             >
               {/* Nome e Role do Remetente */}
               <span className="text-xs text-zinc-500 mb-1 px-1">
-                {msg.remetente?.nome || "Sistema"} • {msg.remetente?.perfil || "SISTEMA"}
+                {msg.remetente?.name || "Sistema"} • {msg.remetente?.role || "SISTEMA"}
               </span>
 
               {/* Balão da Mensagem */}

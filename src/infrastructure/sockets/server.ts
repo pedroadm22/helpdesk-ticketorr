@@ -3,82 +3,105 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { enviarMensagemUseCase } from "@/modules/tickets/use-cases/EnviarMensagemUseCase";
 import { EnviarMensagemSchema } from "@/modules/tickets/dto/MensagemEnviadaDto";
+import { autenticarUsuarioSocketUseCase } from "@/modules/auth/use-cases/AutenticarUsuarioSocketUseCase";
 
 const httpServer = createServer();
 
-// Configura o Socket.io permitindo requisições do nosso front-end Next.js
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // Porta padrão do seu Next.js
+    origin: "http://localhost:3000", 
     methods: ["GET", "POST"],
   },
 });
 
 console.log("🚀 Servidor Socket.io inicializado e aguardando conexões...");
 
+// 🌟 MIDDLEWARE DE INTEGRIDADE: Roda no aperto de mão (handshake)
+io.use(async (socket, next) => {
+  try {
+    const usuarioId = socket.handshake.auth?.usuarioId;
+
+    if (!usuarioId) {
+      console.warn("⚠️ Tentativa de conexão sem ID de usuário rejeitada.");
+      return next(new Error("Autenticação necessária: ID ausente."));
+    }
+
+    // Busca os dados do usuário usando o Caso de Uso isolado
+    const usuario = await autenticarUsuarioSocketUseCase(usuarioId);
+
+    if (usuario) {
+      // 🌟 Gravação segura na memória do socket usando chaves unificadas (name, role)
+      socket.data.user = {
+        id: usuario.id,
+        name: usuario.name || "Usuário",
+        role: usuario.role || "CLIENTE",
+      };
+      return next(); // Libera o acesso para o listener de conexões
+    }
+
+    console.warn(`⚠️ Usuário com ID ${usuarioId} não foi encontrado no banco.`);
+    return next(new Error("Usuário inválido ou não cadastrado."));
+  } catch (error: any) {
+    console.error("❌ Erro fatal no middleware do Socket:", error.message);
+    return next(new Error("Erro interno na validação do aperto de mão."));
+  }
+});
+
+// 🔌 CONEXÃO ESTÁVEL: Executada após passar com sucesso pelo middleware acima
 io.on("connection", (socket) => {
-  console.log(`🔌 Usuário conectado ao chat: ${socket.id}`);
+  // Garantia de leitura segura via Optional Chaining caso algo dê errado na memória ram
+  const nomeUsuarioLogado = socket.data?.user?.name || "Usuário";
+  console.log(`👤 Conexão estabelecida e autenticada para: ${nomeUsuarioLogado} (${socket.id})`);
 
-  // Evento 1: Entrar na sala do chamado específico (Room)
-  socket.on("entrar_chamado", (data: { ticketId: string }) => {
-    if (!data.ticketId) return;
-
-    socket.join(data.ticketId);
-    console.log(
-      `📬 Usuário [${socket.id}] entrou na sala do ticket: ${data.ticketId}`,
-    );
-  });
-
-  // Evento 2: Receber mensagem do front-end e propagar
+  // Evento: Receber mensagem do front-end e propagar via Broadcast
   socket.on("enviar_mensagem", async (payload, callback) => {
     try {
-      // 1. Validação imediata com o Zod na porta de entrada do servidor
+      // 1. Validação imediata com o Zod na porta de entrada
       const dadosValidados = EnviarMensagemSchema.parse(payload);
 
-      // 2. Persiste a mensagem no banco de dados SQLite via Use Case
+      // 2. Persiste a mensagem de forma assíncrona no SQLite
       const resultadoBanco = await enviarMensagemUseCase(dadosValidados);
 
-      // 🌟 SOLUÇÃO: Monta o formato idêntico ao histórico do chat para o front-end entender quem enviou!
+      // 3. BLINDAGEM DO BROADCAST: Monta o formato idêntico ao histórico em inglês
       const novaMensagemFormatada = {
         id: resultadoBanco.id,
         conteudo: resultadoBanco.conteudo,
         criadoEm: resultadoBanco.criadoEm || new Date().toISOString(),
         remetente: {
-          id: dadosValidados.remetenteId, // O ID real do Better Auth que veio do front
-          nome: socket.data?.user?.name || "Usuário", // Se tiver salvo no socket, se não deixa genérico
-          perfil: socket.data?.user?.role || "CLIENTE",
+          id: dadosValidados.remetenteId, 
+          name: socket.data?.user?.name || "Usuário", // 🌟 Proteção contra undefined (impede o crash)
+          role: socket.data?.user?.role || "CLIENTE", // 🌟 Proteção contra undefined (impede o crash)
         },
       };
 
-      // 3. Distribui a mensagem formatada para as pessoas daquela sala (room)
-      io.to(dadosValidados.ticketId).emit(
-        "receber_mensagem",
-        novaMensagemFormatada,
-      );
+      // Log preventivo no terminal para fins de debug rápido
+      console.log(`✈️ Transmitindo mensagem de [${novaMensagemFormatada.remetente.name}]: "${novaMensagemFormatada.conteudo}"`);
 
-      // 4. Confirma sucesso
+      // 4. Distribui em tempo real para todos sintonizados na sala do ticket
+      io.to(dadosValidados.ticketId).emit("receber_mensagem", novaMensagemFormatada);
+
+      // 5. Confirmação opcional para o front-end saber que deu tudo certo
       if (callback) callback({ status: "ok" });
     } catch (error: any) {
-      console.error("❌ Erro ao processar mensagem no socket:", error.message);
+      console.error("❌ Erro ao processar envio de mensagem no socket:", error.message);
       if (callback) {
         callback({
           status: "error",
-          message: error.message || "Erro interno no servidor de chat",
+          message: error.message || "Erro interno ao processar a mensagem",
         });
       }
     }
   });
 
-  // Evento 3: Desconexão limpa
+  // Evento: Desconexão limpa da aba do navegador
   socket.on("disconnect", () => {
-    console.log(`❌ Usuário desconectado: ${socket.id}`);
+    const nomeDesconectado = socket.data?.user?.name || "Desconhecido";
+    console.log(`❌ Usuário desconectado do barramento físico: ${nomeDesconectado} (${socket.id})`);
   });
 });
 
-// Roda o servidor de Sockets na porta 3001
+// Roda o servidor isolado de Sockets na porta 3001
 const PORT = 3001;
 httpServer.listen(PORT, () => {
-  console.log(
-    `⚡ Servidor de tempo real rodando na porta http://localhost:${PORT}`,
-  );
+  console.log(`⚡ Servidor de tempo real rodando estavelmente em http://localhost:${PORT}`);
 });
