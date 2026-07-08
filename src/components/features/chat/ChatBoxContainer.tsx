@@ -3,6 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useChat } from "@/hooks/useChat";
+import { formatarHora } from "@/shared/utils/chatHelpers";
 
 interface Mensagem {
   id: string;
@@ -85,6 +86,35 @@ export function ChatBoxContainer({
         {todasAsMensagens.map((msg) => {
           const ehMinha = msg.remetente?.id === usuarioAtualId;
 
+          // 🌟 Garantimos que a role seja tratada estritamente como um dos três tipos válidos
+          const role =
+            (msg.remetente?.role as "CLIENTE" | "TECNICO" | "ADMIN") ||
+            "CLIENTE";
+
+          // 🌟 Tipamos o objeto explicitamente para o TypeScript aceitar a indexação dinâmica
+          const estilosPorRole: Record<
+            "CLIENTE" | "TECNICO" | "ADMIN",
+            { balao: string; badge: string }
+          > = {
+            CLIENTE: {
+              balao: "bg-zinc-800 text-zinc-100 rounded-tl-none",
+              badge: "text-zinc-500 bg-zinc-800/50 border-zinc-700",
+            },
+            TECNICO: {
+              balao:
+                "bg-emerald-950/80 text-emerald-100 border border-emerald-800/50 rounded-tl-none",
+              badge: "text-emerald-400 bg-emerald-950/50 border-emerald-800",
+            },
+            ADMIN: {
+              balao:
+                "bg-amber-950/80 text-amber-100 border border-amber-800/50 rounded-tl-none",
+              badge: "text-amber-400 bg-amber-950/50 border-amber-800",
+            },
+          };
+
+          // Agora o TypeScript sabe que 'role' é uma chave legítima e segura!
+          const estiloAtual = estilosPorRole[role];
+
           return (
             <div
               key={msg.id}
@@ -93,6 +123,12 @@ export function ChatBoxContainer({
               <span className="text-xs text-zinc-500 mb-1 px-1">
                 {msg.remetente?.name || "Sistema"} •{" "}
                 {msg.remetente?.role || "SISTEMA"}
+              </span>
+
+              <span
+                className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border ${estiloAtual.badge}`}
+              >
+                {role}
               </span>
 
               <div
@@ -104,6 +140,9 @@ export function ChatBoxContainer({
               >
                 {msg.conteudo}
               </div>
+              <span className="text-[10px] text-zinc-500 mt-1 px-1">
+                {formatarHora(msg.criadoEm)}
+              </span>
             </div>
           );
         })}
