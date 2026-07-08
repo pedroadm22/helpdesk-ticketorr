@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useChat } from "@/hooks/useChat"; // Ajuste o caminho do seu hook
+import { useChat } from "@/hooks/useChat"; 
 
 interface Mensagem {
   id: string;
@@ -10,14 +10,14 @@ interface Mensagem {
   criadoEm: string;
   remetente?: {
     id: string;
-    nome: string;
-    perfil: "CLIENTE" | "TECNICO" | "ADMIN";
+    name: string; // 🌟 CORRIGIDO: Padronizado com o useCase e o backend
+    role: "CLIENTE" | "TECNICO" | "ADMIN"; // 🌟 CORRIGIDO: Padronizado com o useCase e o backend
   };
 }
 
 interface ChatBoxContainerProps {
   ticketId: string;
-  usuarioAtualId: string; // ID legítimo vindo da sessão do Better Auth via page.tsx
+  usuarioAtualId: string; 
   historicoInicial: Mensagem[];
 }
 
@@ -28,7 +28,6 @@ export function ChatBoxContainer({
 }: ChatBoxContainerProps) {
   const [textoMensagem, setTextoMensagem] = useState("");
 
-  // 🌟 MUDANÇA CRÍTICA: Repassando o usuarioAtualId para o hook injetar no auth do Socket
   const { mensagens, enviarMensagem } = useChat({
     ticketId,
     usuarioAtualId,
@@ -37,6 +36,7 @@ export function ChatBoxContainer({
   // Combina o histórico inicial do SSR com as novas mensagens em tempo real do Socket
   const todasAsMensagens = [...historicoInicial, ...mensagens];
 
+  // 🌟 CORRIGIDO: Tipo alterado para React.FormEvent para seguir o padrão oficial do React
   const handleEnviar = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!textoMensagem.trim()) return;
@@ -55,7 +55,6 @@ export function ChatBoxContainer({
       {/* Lista de Mensagens */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
         {todasAsMensagens.map((msg) => {
-          // 🌟 PROTEÇÃO: Verifica se a mensagem é sua usando optional chaining
           const ehMinha = msg.remetente?.id === usuarioAtualId;
 
           return (

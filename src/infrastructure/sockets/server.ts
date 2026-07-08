@@ -30,7 +30,7 @@ io.use(async (socket, next) => {
     const usuario = await autenticarUsuarioSocketUseCase(usuarioId);
 
     if (usuario) {
-      // 🌟 Gravação segura na memória do socket usando chaves unificadas (name, role)
+      // Gravação segura na memória do socket usando chaves unificadas (name, role)
       socket.data.user = {
         id: usuario.id,
         name: usuario.name || "Usuário",
@@ -49,9 +49,24 @@ io.use(async (socket, next) => {
 
 // 🔌 CONEXÃO ESTÁVEL: Executada após passar com sucesso pelo middleware acima
 io.on("connection", (socket) => {
-  // Garantia de leitura segura via Optional Chaining caso algo dê errado na memória ram
   const nomeUsuarioLogado = socket.data?.user?.name || "Usuário";
   console.log(`👤 Conexão estabelecida e autenticada para: ${nomeUsuarioLogado} (${socket.id})`);
+
+  // 🌟 NOVO BLOCO: Escuta o gancho enviado pelo useChat.ts para entrar no canal do ticket
+  socket.on("entrar_chamado", ({ ticketId }) => {
+    try {
+      if (!ticketId) {
+        console.warn(`⚠️ Tentativa de entrar em sala com ticketId inválido por [${nomeUsuarioLogado}]`);
+        return;
+      }
+      
+      // Vincula fisicamente o socket a esta sala de transmissão
+      socket.join(ticketId); 
+      console.log(`📺 Usuário [${nomeUsuarioLogado}] entrou na sala do chamado: ${ticketId}`);
+    } catch (error: any) {
+      console.error("❌ Erro ao processar entrada na sala:", error.message);
+    }
+  });
 
   // Evento: Receber mensagem do front-end e propagar via Broadcast
   socket.on("enviar_mensagem", async (payload, callback) => {
@@ -62,20 +77,20 @@ io.on("connection", (socket) => {
       // 2. Persiste a mensagem de forma assíncrona no SQLite
       const resultadoBanco = await enviarMensagemUseCase(dadosValidados);
 
-      // 3. BLINDAGEM DO BROADCAST: Monta o formato idêntico ao histórico em inglês
+      // 3. BLINDAGEM DO BROADCAST: Monta o formato idêntico ao histórico em inglês (name, role)
       const novaMensagemFormatada = {
         id: resultadoBanco.id,
         conteudo: resultadoBanco.conteudo,
         criadoEm: resultadoBanco.criadoEm || new Date().toISOString(),
         remetente: {
           id: dadosValidados.remetenteId, 
-          name: socket.data?.user?.name || "Usuário", // 🌟 Proteção contra undefined (impede o crash)
-          role: socket.data?.user?.role || "CLIENTE", // 🌟 Proteção contra undefined (impede o crash)
+          name: socket.data?.user?.name || "Usuário", // Proteção contra undefined (impede o crash)
+          role: socket.data?.user?.role || "CLIENTE", // Proteção contra undefined (impede o crash)
         },
       };
 
       // Log preventivo no terminal para fins de debug rápido
-      console.log(`✈️ Transmitindo mensagem de [${novaMensagemFormatada.remetente.name}]: "${novaMensagemFormatada.conteudo}"`);
+      console.log(`✈️ Transmitindo mensagem de [${novaMensagemFormatada.remetente.name}] na sala [${dadosValidados.ticketId}]: "${novaMensagemFormatada.conteudo}"`);
 
       // 4. Distribui em tempo real para todos sintonizados na sala do ticket
       io.to(dadosValidados.ticketId).emit("receber_mensagem", novaMensagemFormatada);
