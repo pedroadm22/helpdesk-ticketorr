@@ -6,7 +6,7 @@ import { db } from "./db/index";
 import * as schema from "./schemas/schema"; 
 
 export const auth = betterAuth({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://ticketorr.vercel.app/app/api/auth/",
   database: drizzleAdapter(db, {
     provider: "sqlite",
     schema: {
