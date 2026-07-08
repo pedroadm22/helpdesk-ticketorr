@@ -30,18 +30,23 @@ export async function getHistoricoChatUseCase(ticketId: string) {
   return historico.map((msg) => ({
     id: msg.id,
     conteudo: msg.conteudo,
-    criadoEm: msg.criadoEm,
-    // 🌟 Proteção e padronização total em inglês:
-    remetente: msg.remetente?.id 
+    // 🌟 CONVERSÃO AQUI: Garante que o Date do banco vire uma String ISO
+    criadoEm:
+      msg.criadoEm instanceof Date
+        ? msg.criadoEm.toISOString()
+        : String(msg.criadoEm),
+    remetente: msg.remetente?.id
       ? {
           id: msg.remetente.id,
           name: msg.remetente.name || "Usuário Desconhecido",
-          role: (msg.remetente.role as "CLIENTE" | "TECNICO" | "ADMIN") || "CLIENTE", // 🌟 Mudado para role
-        } 
+          role:
+            (msg.remetente.role as "CLIENTE" | "TECNICO" | "ADMIN") ||
+            "CLIENTE",
+        }
       : {
           id: "sistema",
-          name: "Sistema", // 🌟 Corrigido de 'nome' para 'name'
-          role: "ADMIN" as const, // 🌟 Corrigido de 'perfil' para 'role'
-        }
+          name: "Sistema",
+          role: "ADMIN" as const,
+        },
   }));
 }
