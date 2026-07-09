@@ -52,7 +52,6 @@ io.on("connection", (socket) => {
   const nomeUsuarioLogado = socket.data?.user?.name || "Usuário";
   console.log(`👤 Conexão estabelecida e autenticada para: ${nomeUsuarioLogado} (${socket.id})`);
 
-  // 🌟 NOVO BLOCO: Escuta o gancho enviado pelo useChat.ts para entrar no canal do ticket
   socket.on("entrar_chamado", ({ ticketId }) => {
     try {
       if (!ticketId) {
