@@ -121,9 +121,16 @@ export const tickets = sqliteTable("tickets", {
   protocolo: text("protocolo").notNull().unique(),
   titulo: text("titulo").notNull(),
   descricao: text("descricao").notNull(),
+  
+  // 👤 Quem abriu o chamado
   clienteId: text("cliente_id")
     .notNull()
-    .references(() => user.id), // Apontando para 'user.id' atualizado
+    .references(() => user.id),
+
+  // 🛠️ NOVO: Técnico responsável pelo chamado (Pode iniciar como null)
+  tecnicoId: text("tecnico_id")
+    .references(() => user.id), // Aponta para a tabela user.id
+
   statusId: integer("status_id")
     .notNull()
     .references(() => statusChamado.id)

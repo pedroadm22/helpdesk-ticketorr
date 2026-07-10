@@ -2,11 +2,28 @@ import { Plus } from "lucide-react";
 import { TicketTable } from "@/components/features/ticket/TicketTable";
 import { getFilaTicketsUseCase } from "@/modules/tickets/use-cases/GetFilaTicketsUseCase";
 import Link from "next/link";
+import { listarTicketsUseCase } from "@/modules/tickets/use-cases/ListarTicketUseCase";
+import { auth } from '@/infrastructure/auth';
+import { headers } from "next/headers";
+import { redirect } from 'next/navigation';
 
 // Repare: Sem "use client". A página agora é um Server Component nativo.
 export default async function ChamadosPage() {
-  // Busca os dados atualizados direto do banco SQLite via Drizzle no servidor
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/");
+  }
+
   const filaTickets = await getFilaTicketsUseCase();
+
+  const chamadosFiltrados = await listarTicketsUseCase({
+      usuarioId: session.user.id,
+      role: session.user.role as "CLIENTE" | "TECNICO" | "ADMIN",
+    });
 
   return (
     <div className="space-y-8 p-6 min-h-screen bg-zinc-950 text-zinc-100">

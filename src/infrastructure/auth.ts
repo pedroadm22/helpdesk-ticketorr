@@ -18,6 +18,16 @@ export const auth = betterAuth({
       rememberMe: true,
     },
   }),
+
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "CLIENTE",
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true, 
   },
