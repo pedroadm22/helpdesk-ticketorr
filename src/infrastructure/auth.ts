@@ -2,15 +2,14 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db/index"; 
-// 🌟 MUDANÇA AQUI: Importa absolutamente tudo do seu arquivo de tabelas sob o apelido 'schema'
 import * as schema from "./schemas/schema"; 
+import { UserRole } from '@/shared/types/domain/user';
 
 export const auth = betterAuth({
-  baseURL: "https://ticketorr.vercel.app/app/api/auth/",
+  baseURL: "http://localhost:3000",
   database: drizzleAdapter(db, {
     provider: "sqlite",
     schema: {
-      // 🌟 MUDANÇA AQUI: Mapeia diretamente o objeto exportado do arquivo físico
       user: schema.user,
       session: schema.session,
       account: schema.account,
@@ -22,7 +21,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: "string",
+        type: "string", // Perfeito. Infraestrutura lida apenas com primitivos
         required: true,
         defaultValue: "CLIENTE",
       },

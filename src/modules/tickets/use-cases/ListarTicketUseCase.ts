@@ -1,29 +1,29 @@
-// src/modules/tickets/use-cases/ListarTicketsUseCase.ts
 import { db } from "@/infrastructure/db";
 import { tickets, statusChamado, prioridadesChamado } from "@/infrastructure/schemas/schema";
-import { eq, and, SQL } from "drizzle-orm";
+import { eq, and, or, isNull, SQL } from "drizzle-orm"; // 🌟 Importe 'or' e 'isNull'
+import { UserRole } from "@/shared/types/domain/user";
 
 interface ListarTicketsProps {
   usuarioId: string;
-  role: "CLIENTE" | "TECNICO" | "ADMIN";
+  role: UserRole;
 }
 
 export async function listarTicketsUseCase({ usuarioId, role }: ListarTicketsProps) {
-  // 1. Criamos um array de condições que começará vazio
   const condicoes: SQL[] = [];
 
-  // 🌟 2. APLICAÇÃO DAS REGRAS DE NEGÓCIO PARA FILTRAGEM
   if (role === "CLIENTE") {
-    // Cliente só vê o que ele mesmo abriu
     condicoes.push(eq(tickets.clienteId, usuarioId));
-  } else if (role === "TECNICO") {
-    // Técnico só vê o que está explicitamente atribuído a ele
-    condicoes.push(eq(tickets.tecnicoId, usuarioId));
+  } 
+  else if (role === "TECNICO") {
+    // 🌟 ALTERAÇÃO AQUI: Técnico vê o que é DELE ou o que está SEM TÉCNICO (fila de triagem)
+    condicoes.push(
+      or(
+        eq(tickets.tecnicoId, usuarioId),
+        isNull(tickets.tecnicoId)
+      ) as SQL
+    );
   }
-  // Se for ADMIN, o array 'condicoes' continua vazio, trazendo absolutamente tudo!
 
-  // 3. Executa a query trazendo os relacionamentos essenciais (Status e Prioridade)
-  // para que a sua tabela na Dashboard não mostre apenas IDs brutos (ex: status_id = 1)
   const resultado = await db
     .select({
       id: tickets.id,

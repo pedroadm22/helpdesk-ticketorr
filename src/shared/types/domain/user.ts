@@ -1,9 +1,13 @@
-export type PerfilUsuario = 'CLIENTE' | 'TECNICO' | 'ADMIN';
+// src/shared/types/domain/user.ts
 
-export interface Usuario {
+// 1. O tipo simplificado que você queria centralizar
+export type UserRole = 'CLIENTE' | 'TECNICO' | 'ADMIN';
+
+// 2. A interface do modelo de domínio do Usuário
+export interface User {
   id: string; // UUID
   nome: string;
   email: string;
-  perfil: PerfilUsuario;
+  role: UserRole; // 🌟 Ajustado de 'perfil' para 'role' para casar com o banco e o auth
   dataCriacao: Date;
 }
