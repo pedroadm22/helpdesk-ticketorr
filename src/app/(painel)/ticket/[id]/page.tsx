@@ -1,20 +1,21 @@
 // src/app/ticket/[id]/page.tsx
 import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers"; // 🌟 NOVO: Necessário para ler os cookies da sessão
-import { auth } from "@/infrastructure/auth"; // 🌟 NOVO: Importe a sua configuração do Better Auth
+import { headers } from "next/headers"; //
+import { auth } from "@/infrastructure/auth"; //
 import { getHistoricoChatUseCase } from "@/modules/tickets/use-cases/GetHistoricoChatUseCase";
 import { getTicketDetalheUseCase } from "@/modules/tickets/use-cases/GetTicketDetalheUseCase";
 import { ChatBoxContainer } from "@/components/features/chat/ChatBoxContainer";
-
-// Novos componentes isolados
 import { TicketSidebar } from "@/components/features/ticket-detalhes/TicketSidebar";
 import { TicketHeader } from "@/components/features/ticket-detalhes/TicketHeader";
 
-interface PaginaProps {
+interface TicketDetailsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PaginaDetailDocChamado({ params }: PaginaProps) {
+export default async function PaginaDetailDocChamado({
+  params,
+}: TicketDetailsPageProps) {
+  // 1. Aguarda a Promise do params ser resolvida pelo Next.js
   const resolvedParams = await params;
   const ticketId = resolvedParams.id;
 
@@ -35,7 +36,11 @@ export default async function PaginaDetailDocChamado({ params }: PaginaProps) {
   try {
     // 3. Busca o ticket e o histórico em paralelo no banco de dados
     const [ticket, historico] = await Promise.all([
-      getTicketDetalheUseCase(ticketId),
+      getTicketDetalheUseCase({
+        ticketId: ticketId,
+        usuarioId: session.user.id,
+        role: session.user.role as "CLIENTE" | "TECNICO" | "ADMIN",
+      }),
       getHistoricoChatUseCase(ticketId),
     ]);
 
