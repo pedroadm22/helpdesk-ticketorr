@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1781541703930,
-      "tag": "0000_easy_the_stranger",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1781544986718,
-      "tag": "0001_sleepy_xorn",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1781564124813,
-      "tag": "0002_even_banshee",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1781590364786,
-      "tag": "0003_curly_joshua_kane",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1781880097657,
-      "tag": "0004_noisy_outlaw_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1781880475865,
-      "tag": "0005_small_molten_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1781880706170,
-      "tag": "0006_past_songbird",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1781881198291,
-      "tag": "0007_premium_the_enforcers",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1783652546568,
-      "tag": "0008_common_thunderbolt_ross",
+      "when": 1783727057330,
+      "tag": "0000_outgoing_krista_starr",
       "breakpoints": true
     }
   ]

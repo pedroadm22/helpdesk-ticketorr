@@ -1,156 +1,139 @@
+// src/infrastructure/schemas/schema.ts
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
+import { UserRole } from "@/shared/types/domain/user";
 
-// ==========================================
-// MÓDULO DE AUTENTICAÇÃO (PADRÃO BETTER AUTH)
-// ==========================================
-
+// ========================================================
+// 1. ENTIDADE: USUÁRIOS
+// ========================================================
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" })
-    .default(false)
-    .notNull(),
+  emailVerified: integer("email_verified", { mode: "boolean" }).notNull(), // snake_case
   image: text("image"),
-  role: text("role", { enum: ["CLIENTE", "TECNICO", "ADMIN"] })
-    .default("CLIENTE")
-    .notNull(), // Voltamos para 'role' para automação total
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
-    .notNull(),
+  role: text("role").$type<UserRole>().notNull().default("CLIENTE"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`), // snake_case
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`), // snake_case
 });
 
+// ========================================================
+// 2. ENTIDADES MANTER: STATUS E PRIORIDADES (Existentes)
+// ========================================================
+export const statusChamado = sqliteTable("status_chamado", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull().unique(),
+});
+
+export const prioridadesChamado = sqliteTable("prioridades_chamado", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull().unique(),
+});
+
+// ========================================================
+// 3. ENTIDADES NOVAS: SETORES E SERVIÇOS DA TI
+// ========================================================
+export const setoresTi = sqliteTable("setores_ti", {
+  id: text("id").primaryKey(),
+  nome: text("nome").notNull().unique(),
+  descricao: text("descricao"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`),
+});
+
+export const servicosTi = sqliteTable("servicos_ti", {
+  id: text("id").primaryKey(),
+  setorId: text("setor_id")
+    .notNull()
+    .references(() => setoresTi.id, { onDelete: "cascade" }),
+  nome: text("nome").notNull(),
+  descricao: text("descricao"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`),
+});
+
+// ========================================================
+// 4. ENTIDADE REFORMULADA: TICKETS (Chamados)
+// ========================================================
+export const tickets = sqliteTable("tickets", {
+  id: text("id").primaryKey(),
+  titulo: text("titulo").notNull(),
+  descricao: text("descricao").notNull(),
+  
+  statusId: text("status_id")
+    .notNull()
+    .references(() => statusChamado.id),
+  prioridadeId: text("prioridade_id")
+    .notNull()
+    .references(() => prioridadesChamado.id),
+
+  setorId: text("setor_id")
+    .notNull()
+    .references(() => setoresTi.id),
+  servicoId: text("servico_id")
+    .notNull()
+    .references(() => servicosTi.id),
+
+  clienteId: text("cliente_id")
+    .notNull()
+    .references(() => user.id),
+  adminId: text("admin_id")
+    .references(() => user.id),
+  tecnicoId: text("tecnico_id")
+    .references(() => user.id),
+
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`),
+});
+
+// ========================================================
+// 5. ENTIDADE MANTER: MENSAGENS CHAT (Existente)
+// ========================================================
+export const mensagensChat = sqliteTable("mensagens_chat", {
+  id: text("id").primaryKey(),
+  ticketId: text("ticket_id")
+    .notNull()
+    .references(() => tickets.id, { onDelete: "cascade" }),
+  usuarioId: text("usuario_id")
+    .notNull()
+    .references(() => user.id),
+  mensagem: text("mensagem").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`),
+});
+
+// ========================================================
+// TABELAS PADRÃO DO BETTER AUTH (Convertidas para snake_case)
+// ========================================================
 export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
-  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(), // snake_case
   token: text("token").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .$onUpdate(() => new Date())
-    .notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"), // Corrigido para o singular
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }), // Corrigido para o singular
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(), // snake_case
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(), // snake_case
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }), // snake_case
+  ipAddress: text("ip_address"), // snake_case
+  userAgent: text("user_agent"), // snake_case
 });
 
 export const account = sqliteTable("account", {
   id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }), // Corrigido para o singular
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: integer("access_token_expires_at", {
-    mode: "timestamp_ms",
-  }),
-  refreshTokenExpiresAt: integer("refresh_token_expires_at", {
-    mode: "timestamp_ms",
-  }),
+  accountId: text("account_id").notNull(), // snake_case
+  providerId: text("provider_id").notNull(), // snake_case
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }), // snake_case
+  accessToken: text("access_token"), // snake_case
+  refreshToken: text("refresh_token"), // snake_case
+  idToken: text("id_token"), // snake_case
+  accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp" }), // snake_case
+  refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp" }), // snake_case
   scope: text("scope"),
-  password: text("password"), // O Better Auth salva o hash da senha automaticamente aqui
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .$onUpdate(() => new Date())
-    .notNull(),
+  password: text("password"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(), // snake_case
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(), // snake_case
 });
 
 export const verification = sqliteTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
-
-// Relacionamentos corrigidos (Sem os colchetes no 'references' do método 'one')
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}));
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],     // Mantém o array aqui porque fields sempre pede array de colunas locais
-    references: [user.id],      // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
-  }),
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],    // Mantém o array aqui
-    references: [user.id],     // 🌟 CORRIGIDO: Removido os colchetes daqui! Passa a coluna direto.
-  }),
-}));
-
-// ==========================================
-// MÓDULO DE TICKETS E SISTEMA DE CHAMADOS
-// ==========================================
-
-export const statusChamado = sqliteTable("status_chamado", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
-});
-
-export const prioridadesChamado = sqliteTable("prioridades_chamado", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
-});
-
-export const tickets = sqliteTable("tickets", {
-  id: text("id").primaryKey(),
-  protocolo: text("protocolo").notNull().unique(),
-  titulo: text("titulo").notNull(),
-  descricao: text("descricao").notNull(),
-  
-  // 👤 Quem abriu o chamado
-  clienteId: text("cliente_id")
-    .notNull()
-    .references(() => user.id),
-
-  // 🛠️ NOVO: Técnico responsável pelo chamado (Pode iniciar como null)
-  tecnicoId: text("tecnico_id")
-    .references(() => user.id), // Aponta para a tabela user.id
-
-  statusId: integer("status_id")
-    .notNull()
-    .references(() => statusChamado.id)
-    .default(1),
-  prioridadeId: integer("prioridade_id")
-    .notNull()
-    .references(() => prioridadesChamado.id),
-  dataLimiteSla: integer("data_limite_sla", { mode: "timestamp_ms" }).notNull(),
-  dataCriacao: integer("data_creation", { mode: "timestamp_ms" }).notNull(),
-  dataAtualizacao: integer("data_atualizacao", { mode: "timestamp_ms" }).notNull(),
-});
-
-export const mensagensChat = sqliteTable("mensagens_chat", {
-  id: text("id").primaryKey(),
-  ticketId: text("ticket_id")
-    .notNull()
-    .references(() => tickets.id),
-  remetenteId: text("remetente_id")
-    .notNull()
-    .references(() => user.id), // Apontando para 'user.id' atualizado
-  conteudo: text("conteudo").notNull(),
-  criadoEm: integer("criado_em", { mode: "timestamp_ms" }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(), // snake_case
+  createdAt: integer("created_at", { mode: "timestamp" }), // snake_case
+  updatedAt: integer("updated_at", { mode: "timestamp" }), // snake_case
 });
