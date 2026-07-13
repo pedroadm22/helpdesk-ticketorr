@@ -6,7 +6,7 @@ import * as schema from "./schemas/schema";
 import { UserRole } from '@/shared/types/domain/user';
 
 export const auth = betterAuth({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:3000/",
   database: drizzleAdapter(db, {
     provider: "sqlite",
     schema: {
