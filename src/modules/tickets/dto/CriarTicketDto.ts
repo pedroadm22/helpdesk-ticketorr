@@ -1,30 +1,40 @@
+// src/modules/tickets/dtos/criar-ticket.dto.ts
 import { z } from "zod";
+import crypto from "crypto";
 
-// 1. Definição do Schema do Zod para Validação em Tempo de Execução
+// 1. Schema do Zod para validação em tempo de execução (Runtime)
 export const criarTicketSchema = z.object({
+  id: z
+    .string()
+    .uuid({ message: "O ID do ticket deve ser un UUID válido." })
+    .default(() => crypto.randomUUID()), // Gera automaticamente se omitido
+  
   titulo: z
     .string()
-    .min(5, { message: "O título do chamado precisa ter pelo menos 5 caracteres." })
-    .max(100, { message: "O título está muito longo (máximo de 100 caracteres)." }),
+    .min(5, { message: "O título deve ter pelo menos 5 caracteres." })
+    .max(100, { message: "O título deve ter no máximo 100 caracteres." }),
   
   descricao: z
     .string()
-    .min(10, { message: "Por favor, detalhe melhor o problema (mínimo de 10 caracteres)." }),
+    .min(10, { message: "A descrição deve ter pelo menos 10 caracteres." }),
   
   prioridadeId: z
-    .coerce // Converte automaticamente o valor vindo do <select> (que chega como string) para number
-    .number()
-    .int()
-    .min(1, { message: "Prioridade inválida." })
-    .max(4, { message: "Prioridade inválida." }),
-
-  // O ID do cliente é opcional no payload do formulário do front-end, 
-  // pois será injetado pela Server Action no servidor por segurança.
+    .string()
+    .min(1, { message: "A prioridade é obrigatória." }),
+  
+  setorId: z
+    .string()
+    .min(1, { message: "O setor da TI é obrigatório." }),
+  
+  servicoId: z
+    .string()
+    .min(1, { message: "O tipo de serviço é obrigatório." }),
+  
   clienteId: z
     .string()
-    .uuid({ message: "O identificador do cliente precisa ser um UUID válido." })
-    .optional(),
+    .min(1, { message: "O ID do cliente é obrigatório." }),
 });
 
-// 2. Inferência de Tipo para o TypeScript (Contrato Estático)
-export type CriarTicketInputDto = z.infer<typeof criarTicketSchema>;
+// 2. Tipagem do TypeScript extraída automaticamente do Zod (Compile-time)
+export type CriarTicketInputDTO = z.input<typeof criarTicketSchema>;  // O que a API recebe (pode não ter ID)
+export type CriarTicketOutputDTO = z.infer<typeof criarTicketSchema>; // O que o Use Case consome (garante que tem ID)

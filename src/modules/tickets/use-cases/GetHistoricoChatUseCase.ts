@@ -13,8 +13,8 @@ export async function getHistoricoChatUseCase(ticketId: string) {
   const historico = await db
     .select({
       id: mensagensChat.id,
-      conteudo: mensagensChat.conteudo,
-      criadoEm: mensagensChat.criadoEm,
+      conteudo: mensagensChat.mensagem,
+      criadoEm: mensagensChat.createdAt,
       remetente: {
         id: user.id,
         name: user.name,
@@ -22,9 +22,9 @@ export async function getHistoricoChatUseCase(ticketId: string) {
       },
     })
     .from(mensagensChat)
-    .leftJoin(user, eq(mensagensChat.remetenteId, user.id))
+    .leftJoin(user, eq(mensagensChat.usuarioId, user.id))
     .where(eq(mensagensChat.ticketId, idValido))
-    .orderBy(asc(mensagensChat.criadoEm));
+    .orderBy(asc(mensagensChat.createdAt));
 
   // Mapeia o resultado limpando as propriedades para o contrato do Front-end
   return historico.map((msg) => ({

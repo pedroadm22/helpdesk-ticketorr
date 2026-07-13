@@ -8,15 +8,15 @@ export async function getFilaTicketsUseCase(): Promise<ListaFilaTicketsDto> {
   const resultadoBanco = await db
     .select({
       id: tickets.id,
-      protocolo: tickets.protocolo,
+      protocolo: tickets.id,
       titulo: tickets.titulo,
       statusId: tickets.statusId,
-      dataCriacao: tickets.dataCriacao,
+      dataCriacao: tickets.createdAt,
       clienteNome: user.name, // Capturado através do relacionamento de tabelas
     })
     .from(tickets)
     .leftJoin(user, eq(tickets.clienteId, user.id)) // Une a tabela de tickets com a de usuários
-    .orderBy(desc(tickets.dataCriacao)); // Ordena sempre do mais recente para o mais antigo
+    .orderBy(desc(tickets.createdAt)); // Ordena sempre do mais recente para o mais antigo
 
   // 2. Mapeamos os dados brutos do banco para o formato exato exigido pelo DTO
   return resultadoBanco.map((item) => ({

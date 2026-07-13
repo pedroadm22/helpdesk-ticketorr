@@ -14,7 +14,7 @@ export async function getTicketDetalheUseCase({ ticketId, usuarioId, role }: Get
   const [resultado] = await db
     .select({
       id: tickets.id,
-      protocolo: tickets.protocolo,
+      protocolo: tickets.id,
       titulo: tickets.titulo,
       descricao: tickets.descricao,
       clienteId: tickets.clienteId,
