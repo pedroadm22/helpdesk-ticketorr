@@ -12,7 +12,7 @@ export const user = sqliteTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull(), // snake_case
   image: text("image"),
-  role: text("role").$type<UserRole>().notNull().default("CLIENTE"),
+  role: text("role").$type<UserRole>().notNull().default("CLIENT"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`), // snake_case
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now') * 1000)`), // snake_case
 });

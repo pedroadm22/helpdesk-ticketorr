@@ -1,4 +1,4 @@
-import { Prioridade } from "../domain/prioridade";
+import { Prioridade } from "../domain/priority";
 import { Status } from "../domain/status";
 
 // Props para o Painel Lateral de Controle do Técnico (Onde o Workflow acontece)

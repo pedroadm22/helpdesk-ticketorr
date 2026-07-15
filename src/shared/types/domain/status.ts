@@ -1,8 +1,5 @@
-export type NomeStatus = 'Aberto' | 'Em Atendimento' | 'Pendente' | 'Resolvido';
-
-export interface Status {
-  id: number;
-  nome: NomeStatus;
-  corHex: string; // Ex: '#3B82F6'
-  descricao?: string;
+export interface TicketStatus {
+  id: string;
+  name: string; // Ex: "Awaiting Triage", "In Progress", "Resolved"
+  description: string | null;
 }

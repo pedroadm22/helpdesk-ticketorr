@@ -2,7 +2,7 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { departments } from "./departments";
 import { services } from "./services";
 
-export const faqProblems = sqliteTable("faq_problems", {
+export const faqs = sqliteTable("faq_problems", {
   id: text("id").primaryKey(),
   question: text("question").notNull(),
   answer: text("answer").notNull(),

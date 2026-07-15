@@ -1,8 +1,6 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3"; // ou sqlite3 de sua escolha
 import Database from "better-sqlite3";
-import { schema } from "better-auth/client/plugins";
+import * as schema from "./schema"; // 🌟 Importa o index da pasta schema que reexporta tudo
 
-// Cria a conexão direta com o arquivo SQLite na raiz do projeto
-const sqlite = new Database("sqlite.db");
-
-export const db = drizzle(sqlite);
+const sqlite = new Database("local.db");
+export const db = drizzle(sqlite, { schema });
