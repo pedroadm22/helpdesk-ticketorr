@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/infrastructure/auth-client";
+import { authClient } from "@/infrastructure/auth/auth-client";
 
 export function useLoginForm() {
   const [email, setEmail] = useState("");
