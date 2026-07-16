@@ -1,11 +1,13 @@
 import { db } from "@/infrastructure/db";
-import { services } from "@/infrastructure/db/schema/services";
-import { ServiceOutput } from "../../services/dto/ServiceOutputDto";
+import { services } from "@/infrastructure/db/schema"; // Importa do barrel file da infraestrutura
 import { eq, asc } from "drizzle-orm";
 
+// 🌟 Inferimos o tipo do serviço diretamente da tabela, sem criar arquivos extras!
+type Service = typeof services.$inferSelect;
+
 export class ListServicesByDepartmentUseCase {
-  async execute(departmentId: string): Promise<ServiceOutput[]> {
-    // Busca e ordena os serviços ativos daquele setor por nome de forma crescente
+  // Recebe o ID diretamente como string e retorna uma Promise de array de Services
+  async execute(departmentId: string): Promise<Service[]> {
     const result = await db
       .select()
       .from(services)

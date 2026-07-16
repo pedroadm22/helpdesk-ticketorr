@@ -2,7 +2,7 @@
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/schemas/schema";
 import { eq } from "drizzle-orm";
-import { AtualizarTicketInput, AtualizarTicketSchema } from "../dto/AtualizarTicketDto";
+import { AtualizarTicketInput, AtualizarTicketSchema } from "../dto/UpdateTicketDto";
 
 export async function atualizarTicketUseCase(payload: AtualizarTicketInput) {
   // 1. Valida o payload de entrada contra o DTO
