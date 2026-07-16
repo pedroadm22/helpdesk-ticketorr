@@ -2,7 +2,7 @@
 import { db } from "@/infrastructure/db";
 import { tickets, statusChamado } from "@/infrastructure/schemas/schema";
 import { eq } from "drizzle-orm";
-import { CriarTicketOutputDTO, criarTicketSchema } from "../dto/CriarTicketDto";
+import { CriarTicketOutputDTO, criarT../dto/CreateTicketDto./dto/CriarTicketDto";
 
 export class CriarTicketUseCase {
   // Passamos o DTO validado como o tipo do argumento de entrada

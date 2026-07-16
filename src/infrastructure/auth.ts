@@ -1,9 +1,7 @@
-// src/infrastructure/auth.ts
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db/index"; 
 import * as schema from "./schemas/schema"; 
-import { UserRole } from '@/shared/types/domain/user';
 
 export const auth = betterAuth({
   baseURL: "http://localhost:3000/",
@@ -14,16 +12,16 @@ export const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
-      rememberMe: true,
     },
   }),
 
   user: {
     additionalFields: {
       role: {
-        type: "string", // Perfeito. Infraestrutura lida apenas com primitivos
+        type: "string",
         required: true,
-        defaultValue: "CLIENTE",
+        defaultValue: "CLIENT",
+        input: false, // 🛡️ Continua travado para inputs externos/client-side!
       },
     },
   },

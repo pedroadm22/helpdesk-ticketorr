@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
-import { authClient } from "@/infrastructure/auth-client"; // Ajuste o caminho do seu cliente do Better Auth
+import { authClient } from "@/infrastructure/auth/auth-client"; // Ajuste o caminho do seu cliente do Better Auth
 
 export function LogoutButton() {
   const router = useRouter();
