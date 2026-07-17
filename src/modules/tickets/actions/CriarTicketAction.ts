@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/infrastructure/auth"; // 🌟 Importa o motor do Better Auth do servidor
 import { headers } from "next/headers"; // Necessário para o Better Auth ler os cookies na Action
-import { criarTicketUseCase } from "../use-cases/CriarTicketUseCase";
+import { criarTicketUseCase } from "../use-cases/CreateTicketUseCase";
 import { criarTicketSchema } from "../dto/CreateTicketDto";
 
 export async function criarTicketAction(formData: FormData) {

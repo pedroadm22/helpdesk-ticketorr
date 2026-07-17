@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const assignTicketSchema = z.object({
+export const AssignTicketSchema = z.object({
   ticketId: z.string().min(1, { 
     message: "O ID do chamado é obrigatório." 
   }),
@@ -9,4 +9,4 @@ export const assignTicketSchema = z.object({
   }), 
 });
 
-export type AssignTicketInput = z.infer<typeof assignTicketSchema>;
+export type AssignTicketInput = z.infer<typeof AssignTicketSchema>;

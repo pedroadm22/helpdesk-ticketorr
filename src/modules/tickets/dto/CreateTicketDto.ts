@@ -1,16 +1,12 @@
-// src/modules/tickets/dto/CreateTicketDto.ts
 import { z } from "zod";
 
-export const createTicketSchema = z.object({
-  title: z.string().min(5, { 
-    message: "O título do chamado deve ter pelo menos 5 caracteres." 
-  }),
-  description: z.string().min(10, { 
-    message: "Por favor, descreva o problema com pelo menos 10 caracteres." 
-  }),
-  departmentId: z.string().uuid({ message: "Departamento inválido." }),
-  serviceId: z.string().uuid({ message: "Serviço inválido." }),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).default("MEDIUM"),
+export const CreateTicketSchema = z.object({
+  title: z.string().min(5, "O título deve ter pelo menos 5 caracteres"),
+  description: z.string().min(10, "Forneça uma descrição mais detalhada"),
+  departmentId: z.string().min(1, "O departamento é obrigatório"),
+  serviceId: z.string().min(1, "O serviço é obrigatório"),
+  clientId: z.string().min(1, "O cliente é obrigatório"),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
 });
 
-export type CreateTicketInput = z.infer<typeof createTicketSchema>;
+export type CreateTicketInput = z.infer<typeof CreateTicketSchema>;

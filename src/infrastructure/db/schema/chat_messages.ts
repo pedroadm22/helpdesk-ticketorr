@@ -9,7 +9,7 @@ export const chatMessages = sqliteTable("chat_messages", {
   ticketId: text("ticket_id")
     .notNull()
     .references(() => tickets.id, { onDelete: "cascade" }), // Se o ticket sumir, as mensagens também vão
-  userId: text("user_id")
+  senderId: text("user_id")
     .notNull()
     .references(() => user.id), // Quem enviou a mensagem (cliente ou técnico)
   message: text("message").notNull(),

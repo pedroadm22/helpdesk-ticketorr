@@ -2,21 +2,23 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { departments } from "./departments";
 import { services } from "./services";
-import { user } from "./auth"; // 🌟 Importa a tabela "user" (no singular) do seu arquivo de autenticação
+import { user } from "./auth";
 
 export const tickets = sqliteTable("tickets", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   
+  // 🌟 Status e Prioridades como Enums de texto direto na tabela (Sem tabelas separadas)
   status: text("status", { 
-    enum: ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"] 
-  }).notNull().default("OPEN"),
+    enum: ["WAITING_SUPPORT", "VIEWED", "WAITING_CLIENT", "WAITING_AGENT", "CLOSED", "RESOLVED"] 
+  }).notNull().default("WAITING_SUPPORT"),
 
   priority: text("priority", { 
     enum: ["LOW", "MEDIUM", "HIGH", "URGENT"] 
   }).notNull().default("MEDIUM"),
 
+  // 🔗 Chaves estrangeiras (Foreign Keys)
   departmentId: text("department_id")
     .notNull()
     .references(() => departments.id, { onDelete: "restrict" }),
@@ -25,36 +27,36 @@ export const tickets = sqliteTable("tickets", {
     .notNull()
     .references(() => services.id, { onDelete: "restrict" }),
 
-  // 👤 Aponta corretamente para o "user.id" (no singular) do Better Auth
   clientId: text("client_id")
     .notNull()
     .references(() => user.id, { onDelete: "restrict" }),
 
   agentId: text("agent_id")
-    .references(() => user.id, { onDelete: "set null" }),
+    .references(() => user.id, { onDelete: "set null" }), // Pode ser nulo até um técnico assumir
 
+  // 📅 Timestamps gerenciados como Epoch Timestamps (inteiros) para o SQLite/Turso
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+// 🤝 Definição das relações do Drizzle (Drizzle Relations API)
 export const ticketsRelations = relations(tickets, ({ one }) => ({
-  department: one(departments, {
-    fields: [tickets.departmentId],
-    references: [departments.id],
+  department: one(departments, { 
+    fields: [tickets.departmentId], 
+    references: [departments.id] 
   }),
-  service: one(services, {
-    fields: [tickets.serviceId],
-    references: [services.id],
+  service: one(services, { 
+    fields: [tickets.serviceId], 
+    references: [services.id] 
   }),
-  // 🔗 Mapeia as relações apontando para "user"
-  client: one(user, {
-    fields: [tickets.clientId],
-    references: [user.id],
-    relationName: "client_tickets",
+  client: one(user, { 
+    fields: [tickets.clientId], 
+    references: [user.id], 
+    relationName: "client_tickets" 
   }),
-  agent: one(user, {
-    fields: [tickets.agentId],
-    references: [user.id],
-    relationName: "agent_tickets",
+  agent: one(user, { 
+    fields: [tickets.agentId], 
+    references: [user.id], 
+    relationName: "agent_tickets" 
   }),
 }));
