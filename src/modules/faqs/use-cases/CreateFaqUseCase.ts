@@ -1,6 +1,6 @@
 // faqs/use-cases/create-faq.use-case.ts
 import { CreateFaqInput } from "../dto/CreateFaqDto";
-import { IFaqRepository, FaqEntity } from "../repositories/faq-repository-interface";
+import { IFaqRepository, FaqEntity } from "../repositories/faq.repository.interface";
 
 export class CreateFaqUseCase {
   constructor(private faqRepository: IFaqRepository) {}
