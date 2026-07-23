@@ -166,3 +166,5 @@ src/
 │   └── schema/             # Arquivos de mapeamento de tabelas e esquemas relacionais do Drizzle ORM
 │
 └── shared/                 # Recursos utilitários, formatos, tipagens base e constantes globais
+
+senha do banco de dados Supabase: supabase123$

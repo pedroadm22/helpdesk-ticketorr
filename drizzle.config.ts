@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "sqlite",
   dbCredentials: {
-    url:"./sqlite.db", // Colocando na raiz do projeto, o arquivo sqlite.db é criado automaticamente
+    url:process.env.DIRECT_URL!|| "./sqlite.db", // Colocando na raiz do projeto, o arquivo sqlite.db é criado automaticamente
   },
 });
