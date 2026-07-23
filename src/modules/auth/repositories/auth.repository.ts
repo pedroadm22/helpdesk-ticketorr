@@ -7,9 +7,31 @@ import {
   UserEntity,
   UserInsert,
   AuthSessionResult,
+  AuthResponse,
 } from "./auth.repository.interface";
+import { LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
 
 export class AuthRepository implements IAuthRepository {
+
+  async signInWithEmail({ email, password }: LoginInputDto): Promise<AuthResponse> {
+    try {
+      const response = await auth.api.signInEmail({
+        body: { email, password },
+      });
+
+      if (!response) {
+        return { success: false, message: "Credenciais inválidas." };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || "Erro ao realizar autenticação.",
+      };
+    }
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const [foundUser] = await db
       .select()

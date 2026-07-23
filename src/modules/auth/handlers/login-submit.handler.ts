@@ -1,17 +1,15 @@
-import { signIn } from "@/infrastructure/auth/auth-client";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { loginAction } from "@/actions/auth/login.action";
+import { LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
 
 interface HandleLoginParams {
-  email: string;
-  password: string;
-  router: AppRouterInstance;
+  data: LoginInputDto;
+  router: any;
   setIsPending: (pending: boolean) => void;
   setErrorMessage: (message: string | null) => void;
 }
 
 export async function handleLoginSubmit({
-  email,
-  password,
+  data,
   router,
   setIsPending,
   setErrorMessage,
@@ -19,22 +17,20 @@ export async function handleLoginSubmit({
   setIsPending(true);
   setErrorMessage(null);
 
-  await signIn.email(
-    {
-      email,
-      password,
-    },
-    {
-      onSuccess: () => {
-        router.push("/dashboard");
-        router.refresh();
-      },
-      onError: (ctx) => {
-        setIsPending(false);
-        setErrorMessage(
-          ctx.error.message || "Credenciais inválidas. Tente novamente.",
-        );
-      },
-    },
-  );
+  try {
+    const response = await loginAction(data);
+
+    if (!response.success) {
+      setErrorMessage(response.error || "Erro ao efetuar o login.");
+      setIsPending(false);
+      return;
+    }
+
+    // Sucesso: Redireciona e atualiza os dados da sessão na tela
+    router.push("/dashboard");
+    router.refresh();
+  } catch (error) {
+    setErrorMessage("Ocorreu um erro inesperado. Tente novamente.");
+    setIsPending(false);
+  }
 }

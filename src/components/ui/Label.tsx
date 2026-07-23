@@ -1,11 +1,20 @@
-import { LabelHTMLAttributes } from "react";
-import { cn } from "@/shared/utils/cn";
+"use client"
 
-export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
+import * as React from "react"
+
+import { cn } from "@/shared/utils/cn"
+
+function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
     <label
+      data-slot="label"
+      className={cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      )}
       {...props}
-      className={cn("text-sm font-medium text-zinc-300 select-none cursor-pointer", className)}
     />
-  );
+  )
 }
+
+export { Label }

@@ -5,7 +5,7 @@ import * as schema from "./db/schema/auth"; // Ajuste o caminho se necessário
 
 export const auth = betterAuth({
   // 🌟 Usar variável de ambiente com fallback para dev
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/",
 
   database: drizzleAdapter(db, {
     provider: "sqlite",

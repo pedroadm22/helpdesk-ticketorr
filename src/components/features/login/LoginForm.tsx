@@ -2,74 +2,68 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginInput } from "./LoginInput";
-import { handleLoginSubmit } from "@/modules/auth/handlers/login-submit.handler";
+import { handleLoginSubmit } from "@/modules/auth/handlers/login-submit.handler"; // Ajuste o caminho do import se necessário
+import { Button } from "@/components/ui/button";
+import { LoginInput } from './LoginInput';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  
+  // Estados locais gerenciados pelo handler
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleLoginSubmit({
-      email,
-      password,
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    // Dispara o handler reutilizável
+    await handleLoginSubmit({
+      data: { email, password },
       router,
       setIsPending,
       setErrorMessage,
     });
-  };
+  }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      {errorMessage && (
-        <div className="p-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">
-          {errorMessage}
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} className="space-y-4">
       <LoginInput
         id="email"
         name="email"
-        type="email"
         label="E-mail"
+        type="email"
         placeholder="seu@email.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
         disabled={isPending}
+        required
       />
 
       <LoginInput
         id="password"
         name="password"
-        type="password"
         label="Senha"
+        type="password"
         placeholder="••••••••"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
         disabled={isPending}
-        rightElement={
-          <a
-            href="/forgot-password"
-            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            Esqueceu a senha?
-          </a>
-        }
+        required
       />
 
-      <button
+      {errorMessage && (
+        <div className="rounded-md bg-red-500/10 p-3 border border-red-500/20">
+          <p className="text-xs text-red-400 font-medium">{errorMessage}</p>
+        </div>
+      )}
+
+      <Button
         type="submit"
         disabled={isPending}
-        className="w-full py-2.5 px-4 mt-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors"
       >
-        {isPending ? "Autenticando..." : "Entrar no Sistema"}
-      </button>
+        {isPending ? "Autenticando..." : "Entrar"}
+      </Button>
     </form>
   );
 }

@@ -3,7 +3,7 @@
 
 import { AlertCircle, Loader2, Send } from "lucide-react";
 import { useCriarTicketForm } from "@/hooks/useCriarTicketForm";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/TextArea";
 
