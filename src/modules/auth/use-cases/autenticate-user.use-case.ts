@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db";
-import { user } from "@/infrastructure/schemas/schema";
+import { user } from "@/infrastructure/db/schema/auth";
 import { eq } from "drizzle-orm";
 
 interface UsuarioSocketDTO {

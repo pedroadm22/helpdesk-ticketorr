@@ -1,5 +1,5 @@
 import { auth } from "@/infrastructure/auth"; // 🌟 Importação correta do SERVIDOR
-import { RegisterInput, registerSchema } from "../dto/RegisterDto";
+import { RegisterInput, registerSchema } from "../dto/register-user.dto";
 
 export class RegisterUseCase {
   async execute(input: RegisterInput): Promise<{ userId: string; email: string }> {

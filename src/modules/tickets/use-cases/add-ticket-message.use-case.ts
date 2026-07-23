@@ -3,7 +3,7 @@ import { db } from "@/infrastructure/db";
 import { chatMessages } from "@/infrastructure/db/schema/chat_messages";
 import { tickets } from "@/infrastructure/db/schema/tickets";
 import { user } from "@/infrastructure/db/schema/auth";
-import { AddTicketMessageInput, AddTicketMessageSchema } from "../dto/AddTicketMessageDto";
+import { AddTicketMessageInput, AddTicketMessageSchema } from "../dto/add-ticket-message.dto";
 import { randomUUID } from "crypto";
 
 // 🌟 Inferindo o tipo de retorno diretamente da tabela do Drizzle

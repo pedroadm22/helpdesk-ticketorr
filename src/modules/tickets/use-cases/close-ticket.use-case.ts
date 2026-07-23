@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
-import { CloseTicketInput, CloseTicketSchema } from "../dto/CloseTicketDto";
+import { CloseTicketInput, CloseTicketSchema } from "../dto/close-ticket.dto";
 
 // 🌟 Inferindo o tipo de retorno diretamente da tabela do Drizzle
 type Ticket = typeof tickets.$inferSelect;

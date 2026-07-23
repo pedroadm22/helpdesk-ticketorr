@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
 import { user } from "@/infrastructure/db/schema/auth";
-import { GetTicketDetailsInput, GetTicketDetailsSchema } from "../dto/GetTicketDetailsDto";
+import { GetTicketDetailsInput, GetTicketDetailsSchema } from "../dto/get-ticket-details.dto";
 
 type Ticket = typeof tickets.$inferSelect;
 

@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db";
 import { services, departments } from "@/infrastructure/db/schema";
-import { UpdateServiceInput, updateServiceSchema } from "../dto/UpdateServiceDto";
+import { UpdateServiceInput, updateServiceSchema } from "../dto/update-service.dto";
 import { eq } from "drizzle-orm";
 
 type Service = typeof services.$inferSelect;

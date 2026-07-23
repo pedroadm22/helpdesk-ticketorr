@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db";
 import { departments } from "@/infrastructure/db/schema/departments";
-import { UpdateDepartmentInput, updateDepartmentSchema } from "../dto/UpdateDepartmentDto";
+import { UpdateDepartmentInput, updateDepartmentSchema } from "../dto/update-department.dto";
 import { eq } from "drizzle-orm";
 
 // 🌟 Inferindo o tipo do select do Drizzle diretamente do schema da tabela

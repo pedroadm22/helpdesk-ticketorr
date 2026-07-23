@@ -1,7 +1,7 @@
 import { and, eq, SQL } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
-import { ListTicketsInput, ListTicketsSchema } from "../dto/ListTicketsDto";
+import { ListTicketsInput, ListTicketsSchema } from "../dto/list-tickets.dto";
 
 type Ticket = typeof tickets.$inferSelect;
 

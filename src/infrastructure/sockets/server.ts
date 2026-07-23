@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { enviarMensagemUseCase } from "@/modules/tickets/use-cases/EnviarMensagemUseCase";
 import { EnviarMensagemSchema } from "@/modules/tickets/dto/MensagemEnviadaDto";
-import { autenticarUsuarioSocketUseCase } from "@/modules/auth/use-cases/AutenticarUsuarioSocketUseCase";
+import { autenticarUsuarioSocketUseCase } from "@/modules/auth/use-cases/autenticate-user.use-case";
 
 const httpServer = createServer();
 

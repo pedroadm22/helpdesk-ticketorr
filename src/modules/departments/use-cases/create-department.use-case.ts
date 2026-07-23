@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db";
 import { departments } from "@/infrastructure/db/schema/departments";
-import { CreateDepartmentInput, createDepartmentSchema } from "../dto/CreateDepartmentDto";
+import { CreateDepartmentInput, createDepartmentSchema } from "../dto/create-department.dto";
 import { randomUUID } from "crypto";
 
 // 🌟 Inferindo o tipo de retorno diretamente da tabela do Drizzle

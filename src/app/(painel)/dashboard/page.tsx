@@ -2,7 +2,7 @@
 import { auth } from "@/infrastructure/auth"; // Ajuste para o caminho real do seu arquivo do Better Auth
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { listarTicketsUseCase } from "@/modules/tickets/use-cases/ListarTicketUseCase";
+import { ListTicketsUseCase } from "@/modules/tickets/use-cases/list-tickets.use-case";
 import { TicketTable } from "@/components/features/ticket/TicketTable";
 import { UserRole } from "@/shared/types/domain/user";
 
@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   // e o usuário não estiver autenticado, redireciona para a raiz/login
 
   // 3. Executa o caso de uso injetando o ID e a Role obtidos da sessão
-  const chamadosFiltrados = await listarTicketsUseCase({
+  const chamadosFiltrados = await ListTicketsUseCase({
     usuarioId: session.user.id,
     role: usuarioRole,
   });

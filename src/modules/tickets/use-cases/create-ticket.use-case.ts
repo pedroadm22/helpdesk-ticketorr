@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
-import { CreateTicketInput, CreateTicketSchema } from "../dto/CreateTicketDto";
+import { CreateTicketInput, CreateTicketSchema } from "../dto/create-ticket.dto";
 import { randomUUID } from "crypto";
 
 type Ticket = typeof tickets.$inferSelect;

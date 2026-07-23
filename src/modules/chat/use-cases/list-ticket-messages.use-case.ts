@@ -2,7 +2,7 @@ import { eq, asc } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { chatMessages } from "@/infrastructure/db/schema/chat_messages";
 import { tickets } from "@/infrastructure/db/schema/tickets";
-import { ListTicketMessagesInput, ListTicketMessagesSchema } from "../dto/ListTicketMessagesDto";
+import { ListTicketMessagesInput, ListTicketMessagesSchema } from "../dto/list-ticket-messages.dto";
 
 type ChatMessage = typeof chatMessages.$inferSelect;
 

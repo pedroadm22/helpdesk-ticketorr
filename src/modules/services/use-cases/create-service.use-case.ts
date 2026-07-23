@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db";
 import { services, departments } from "@/infrastructure/db/schema";
-import { CreateServiceInput, createServiceSchema } from "../dto/CreateServiceDto";
+import { CreateServiceInput, createServiceSchema } from "../dto/create-service.dto";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
