@@ -38,8 +38,8 @@ export function useLoginForm() {
 
       if (data) {
         console.log("🎉 Login efetuado! Redirecionando para o painel...");
-        router.push("/dashboard");
         router.refresh(); // Limpa caches do Next.js para carregar a sessão nova
+        router.push("/dashboard");
       }
     } catch (err) {
       console.error("💥 Erro inesperado na requisição:", err);

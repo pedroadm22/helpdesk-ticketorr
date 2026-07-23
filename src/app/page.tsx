@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { LoginCard } from "@/components/features/login/LoginCard";
-import { LoginForm } from "@/components/features/login/LoginForm";
+import { LoginCard } from "@/components/features/login/login-card";
+import { LoginForm } from "@/components/features/login/login-form";
 
 export default function LoginPage() {
   return (
