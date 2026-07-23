@@ -1,52 +1,39 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  // 1. Atualiza/Valida a sessão
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // 1. Defina suas rotas públicas
   const isPublicRoute = pathname === "/" || pathname === "/cadastro";
 
-  // 2. Redirecionamentos baseados na sessão do Supabase Auth
-  if (user && isPublicRoute) {
+  // 2. Consulta a sessão na API interna do Better Auth
+  const sessionResponse = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
+    headers: {
+      cookie: request.headers.get("cookie") || "",
+    },
+  });
+
+  if (!sessionResponse.ok) {
+    if (!isPublicRoute) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  const sessionData = await sessionResponse.json();
+  const hasSession = sessionData && (sessionData.session || sessionData.user);
+
+  // 3. Redirecionamentos
+  if (hasSession && isPublicRoute) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!user && !isPublicRoute) {
+  if (!hasSession && !isPublicRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
