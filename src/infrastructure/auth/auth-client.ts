@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
-import type { auth } from "../auth"; // Importa estritamente como tipo (não gera código no bundle final)
+import type { auth } from "./"; // Importa estritamente como tipo (não gera código no bundle final)
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/",

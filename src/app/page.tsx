@@ -1,30 +1,20 @@
-import Link from "next/link";
-import { LoginCard } from "@/components/features/login/login-card";
 import { LoginForm } from "@/components/features/login/login-form";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen w-full flex items-center justify-center p-4 bg-zinc-950 text-zinc-100 relative overflow-hidden">
-      {/* Detalhe estético de fundo (Grid/Gradients opcionais) */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-blue-900/20 via-zinc-950 to-zinc-950 -z-10" />
+    <main className="relative min-h-screen w-full bg-zinc-950 flex items-center justify-center p-4 overflow-hidden">
+      
+      {/* 🟢 Luz Neon de Fundo (Glow Verde sutil) */}
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 blur-[140px] rounded-full pointer-events-none" 
+        aria-hidden="true"
+      />
 
-      <LoginCard
-        title="Portal de Atendimento"
-        description="Informe suas credenciais para acessar os chamados"
-        footer={
-          <p>
-            Ainda não tem uma conta?{" "}
-            <Link
-              href="/register"
-              className="text-blue-400 hover:underline font-medium"
-            >
-              Cadastre-se aqui
-            </Link>
-          </p>
-        }
-      >
+      {/* Apenas o Card de Login Centralizado */}
+      <section className="relative z-10 w-full max-w-md">
         <LoginForm />
-      </LoginCard>
+      </section>
+
     </main>
   );
 }
