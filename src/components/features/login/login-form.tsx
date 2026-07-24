@@ -1,26 +1,23 @@
-// src/modules/auth/ui/login-form.tsx
 "use client";
 
 import { Mail, Lock } from "lucide-react";
 
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { GlassCard } from "@/components/ui/glass-card";
 import { FormError } from "@/components/ui/form-error";
 import { FormUnderlineInput } from "@/components/ui/form-underline-input";
 
 import { useLogin } from "@/hooks/use-login";
-import { LoginCard } from "@/components/features/login/login-card";
 import { CloseButton } from "@/components/ui/close-button";
-import { AuthOptions } from "@/components/features/login/auth-options";
-import { RegisterFooter } from "@/components/features/login/register-footer";
+import { AuthOptions } from "./auth-options";
+import { AuthFooter } from "@/components/ui/auth-footer";
 
 export function LoginForm() {
   const { form, isPending, errorMessage, onSubmit } = useLogin();
 
   return (
-    <LoginCard>
-      <CloseButton />
-
+    <GlassCard>
       <h2 className="text-3xl font-bold text-center mb-8 text-white tracking-wide">
         Login
       </h2>
@@ -28,7 +25,6 @@ export function LoginForm() {
       <Form {...form}>
         <form onSubmit={onSubmit} className="space-y-6">
           
-          {/* Campo E-mail */}
           <FormField
             control={form.control}
             name="email"
@@ -48,7 +44,6 @@ export function LoginForm() {
             )}
           />
 
-          {/* Campo Senha */}
           <FormField
             control={form.control}
             name="password"
@@ -68,13 +63,10 @@ export function LoginForm() {
             )}
           />
 
-          {/* Lembrar-me & Esqueceu a Senha */}
           <AuthOptions />
 
-          {/* Mensagem de Erro da API */}
           <FormError message={errorMessage} />
 
-          {/* Botão de Submit do shadcn */}
           <Button
             type="submit"
             disabled={isPending}
@@ -83,11 +75,15 @@ export function LoginForm() {
             {isPending ? "Autenticando..." : "Entrar"}
           </Button>
 
-          {/* Link "Não tem uma conta?" */}
-          <RegisterFooter />
+          {/* Rodapé genérico reutilizado */}
+          <AuthFooter
+            text="Não tem uma conta?"
+            linkText="Cadastre-se"
+            href="/register"
+          />
 
         </form>
       </Form>
-    </LoginCard>
+    </GlassCard>
   );
 }

@@ -1,11 +1,10 @@
-// src/components/ui/form-underline-input.tsx
 "use client";
 
 import * as React from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
-interface FormUnderlineInputProps
+export interface FormUnderlineInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: LucideIcon;
 }

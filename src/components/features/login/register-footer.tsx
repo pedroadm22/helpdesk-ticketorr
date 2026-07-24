@@ -6,7 +6,7 @@ export function RegisterFooter() {
     <div className="text-center text-xs text-zinc-400 pt-2">
       Não tem uma conta?{" "}
       <Link
-        href="/cadastro"
+        href="/register"
         className="font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-4 transition-colors"
       >
         Cadastre-se

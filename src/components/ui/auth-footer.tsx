@@ -1,15 +1,20 @@
-// src/modules/auth/ui/components/register-footer.tsx
 import Link from "next/link";
 
-export function RegisterFooter() {
+interface AuthFooterProps {
+  text: string;
+  linkText: string;
+  href: string;
+}
+
+export function AuthFooter({ text, linkText, href }: AuthFooterProps) {
   return (
     <div className="text-center text-xs text-zinc-400 pt-2">
-      Não tem uma conta?{" "}
+      {text}{" "}
       <Link
-        href="/register"
+        href={href}
         className="font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-4 transition-colors"
       >
-        Cadastre-se
+        {linkText}
       </Link>
     </div>
   );
