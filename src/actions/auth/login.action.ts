@@ -1,30 +1,33 @@
-"use server";
+import { loginSchema, LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
+import { createClient } from "@/lib/supabase/client";
 
-import { auth } from "@/infrastructure/auth";
-import { LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
-import { headers } from "next/headers";
+export type LoginResult = 
+  | { success: true }
+  | { success: false; error: string };
 
-interface LoginState {
-  success: boolean;
-  error?: string;
-}
-
-export async function loginAction(data: LoginInputDto): Promise<LoginState> {
-  try {
-    await auth.api.signInEmail({
-      body: {
-        email: data.email,
-        password: data.password,
-      },
-      headers: await headers(),
-    });
-
-    // Retorna sucesso para o cliente orquestrar a navegação
-    return { success: true };
-  } catch (error: any) {
+export async function loginAction(data: LoginInputDto): Promise<LoginResult> {
+  // 1. Validação do DTO antes de enviar
+  const parseResult = loginSchema.safeParse(data);
+  if (!parseResult.success) {
     return {
       success: false,
-      error: error?.message || "E-mail ou senha incorretos.",
+      error: "Dados de entrada inválidos.",
     };
   }
+
+  // 2. Chamada de Infraestrutura
+  const supabase = createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parseResult.data.email,
+    password: parseResult.data.password,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.message || "E-mail ou senha incorretos.",
+    };
+  }
+
+  return { success: true };
 }
