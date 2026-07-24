@@ -1,14 +1,26 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+// src/infrastructure/db/schema/departments.ts
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { services } from "./services";
 
-export const departments = sqliteTable("departments", {
-  id: text("id").primaryKey(), // UUID gerado na aplicação (v4)
-  name: text("name").notNull().unique(), // Ex: "TI", "Infrastructure", "HR"
-  description: text("description"), // Opcional
-  createdAt: integer("created_at", { mode: "timestamp" })
+export const departments = pgTable("departments", {
+  // UUID nativo gerado no banco
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  name: text("name").notNull().unique(), // Ex: "TI", "Infraestrutura", "RH"
+  description: text("description"),
+
+  // Timestamps nativos do Postgres
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
+
+// Definição da relação um-para-muitos (Um departamento tem vários serviços)
+export const departmentsRelations = relations(departments, ({ many }) => ({
+  services: many(services),
+}));

@@ -1,62 +1,83 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+// src/infrastructure/db/schema/tickets.ts
+import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { departments } from "./departments";
 import { services } from "./services";
-import { user } from "./auth";
+import { users } from "./auth";
 
-export const tickets = sqliteTable("tickets", {
-  id: text("id").primaryKey(),
+// 1. Definição dos Enums Nativos do PostgreSQL
+export const ticketStatusEnum = pgEnum("ticket_status", [
+  "WAITING_SUPPORT",
+  "VIEWED",
+  "WAITING_CLIENT",
+  "WAITING_AGENT",
+  "CLOSED",
+  "RESOLVED",
+]);
+
+export const ticketPriorityEnum = pgEnum("ticket_priority", [
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "URGENT",
+]);
+
+// 2. Tabela de Tickets no Postgres
+export const tickets = pgTable("tickets", {
+  // UUID nativo com geração automática de ID no banco
+  id: uuid("id").defaultRandom().primaryKey(),
+  
   title: text("title").notNull(),
   description: text("description").notNull(),
-  
-  // 🌟 Status e Prioridades como Enums de texto direto na tabela (Sem tabelas separadas)
-  status: text("status", { 
-    enum: ["WAITING_SUPPORT", "VIEWED", "WAITING_CLIENT", "WAITING_AGENT", "CLOSED", "RESOLVED"] 
-  }).notNull().default("WAITING_SUPPORT"),
 
-  priority: text("priority", { 
-    enum: ["LOW", "MEDIUM", "HIGH", "URGENT"] 
-  }).notNull().default("MEDIUM"),
+  // Enums stritamente tipados
+  status: ticketStatusEnum("status").notNull().default("WAITING_SUPPORT"),
+  priority: ticketPriorityEnum("priority").notNull().default("MEDIUM"),
 
-  // 🔗 Chaves estrangeiras (Foreign Keys)
-  departmentId: text("department_id")
+  // Chaves estrangeiras (Foreign Keys)
+  departmentId: uuid("department_id")
     .notNull()
     .references(() => departments.id, { onDelete: "restrict" }),
-  
-  serviceId: text("service_id")
+
+  serviceId: uuid("service_id")
     .notNull()
     .references(() => services.id, { onDelete: "restrict" }),
 
-  clientId: text("client_id")
+  clientId: text("client_id") // Mantenha uuid("client_id") se o ID do user for UUID no seu schema do Supabase
     .notNull()
-    .references(() => user.id, { onDelete: "restrict" }),
+    .references(() => users.id, { onDelete: "restrict" }),
 
-  agentId: text("agent_id")
-    .references(() => user.id, { onDelete: "set null" }), // Pode ser nulo até um técnico assumir
+  agentId: text("agent_id") // Mantenha uuid("agent_id") se o ID do users for UUID
+    .references(() => users.id, { onDelete: "set null" }),
 
-  // 📅 Timestamps gerenciados como Epoch Timestamps (inteiros) para o SQLite/Turso
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  // Timestamps Nativos do Postgres com Fuso Horário
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()), // Atualiza a data automaticamente ao editar o registro
 });
 
-// 🤝 Definição das relações do Drizzle (Drizzle Relations API)
+// 3. Relações do Drizzle (Permanece quase idêntico ao SQLite)
 export const ticketsRelations = relations(tickets, ({ one }) => ({
-  department: one(departments, { 
-    fields: [tickets.departmentId], 
-    references: [departments.id] 
+  department: one(departments, {
+    fields: [tickets.departmentId],
+    references: [departments.id],
   }),
-  service: one(services, { 
-    fields: [tickets.serviceId], 
-    references: [services.id] 
+  service: one(services, {
+    fields: [tickets.serviceId],
+    references: [services.id],
   }),
-  client: one(user, { 
-    fields: [tickets.clientId], 
-    references: [user.id], 
-    relationName: "client_tickets" 
+  client: one(users, {
+    fields: [tickets.clientId],
+    references: [users.id],
+    relationName: "client_tickets",
   }),
-  agent: one(user, { 
-    fields: [tickets.agentId], 
-    references: [user.id], 
-    relationName: "agent_tickets" 
+  agent: one(users, {
+    fields: [tickets.agentId],
+    references: [users.id],
+    relationName: "agent_tickets",
   }),
 }));

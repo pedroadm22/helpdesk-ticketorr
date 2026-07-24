@@ -1,18 +1,34 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
-import { departments } from "./departments"; // Importa a tabela pai para a relação
+// src/infrastructure/db/schema/services.ts
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { departments } from "./departments";
 
-export const services = sqliteTable("services", {
-  id: text("id").primaryKey(), // UUID gerado na aplicação (v4)
-  departmentId: text("department_id")
+export const services = pgTable("services", {
+  // UUID nativo
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  // Chave estrangeira com tipo UUID apontando para departments.id
+  departmentId: uuid("department_id")
     .notNull()
-    .references(() => departments.id, { onDelete: "cascade" }), // Chave estrangeira
-  name: text("name").notNull(), // Ex: "Reset Password", "Wi-Fi Issue"
-  description: text("description"), // Opcional
-  createdAt: integer("created_at", { mode: "timestamp" })
+    .references(() => departments.id, { onDelete: "cascade" }),
+
+  name: text("name").notNull(), // Ex: "Reset de Senha", "Problema no Wi-Fi"
+  description: text("description"),
+
+  // Timestamps nativos do Postgres
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
+
+// Definição da relação muitos-para-um (Vários serviços pertencem a um departamento)
+export const servicesRelations = relations(services, ({ one }) => ({
+  department: one(departments, {
+    fields: [services.departmentId],
+    references: [departments.id],
+  }),
+}));

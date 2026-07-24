@@ -1,20 +1,25 @@
 // src/infrastructure/db/schema/chat_messages.ts
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { tickets } from "./tickets";
-import { user } from "./auth";
+import { users } from "./auth";
 
-export const chatMessages = sqliteTable("chat_messages", {
-  id: text("id").primaryKey(), // UUID
-  ticketId: text("ticket_id")
+export const chatMessages = pgTable("chat_messages", {
+  // 1. UUID nativo com geração automática
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  // 2. Foreign key com tipo UUID nativo
+  ticketId: uuid("ticket_id")
     .notNull()
-    .references(() => tickets.id, { onDelete: "cascade" }), // Se o ticket sumir, as mensagens também vão
-  senderId: text("user_id")
+    .references(() => tickets.id, { onDelete: "cascade" }),
+
+  senderId: text("user_id") // Ou uuid("user_id") caso a tabela de usuários use UUID
     .notNull()
-    .references(() => user.id), // Quem enviou a mensagem (cliente ou técnico)
+    .references(() => users.id),
+
   message: text("message").notNull(),
-  
-  createdAt: integer("created_at", { mode: "timestamp" })
+
+  // 3. Data nativa do Postgres com Timezone UTC
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .defaultNow(),
 });

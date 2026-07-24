@@ -1,12 +1,16 @@
 // src/infrastructure/db/schema/statuses.ts
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const ticketStatuses = sqliteTable("ticket_statuses", {
-  id: text("id").primaryKey(), // Pode ser um UUID ou slugs como 'awaiting-triage'
+export const ticketStatuses = pgTable("ticket_statuses", {
+  // Se for usar UUID gerado pelo banco. 
+  // (Caso prefira slugs manuais como 'awaiting-triage', basta remover o .defaultRandom())
+  id: uuid("id").defaultRandom().primaryKey(),
+
   name: text("name").notNull().unique(), // Ex: "Awaiting Triage"
   description: text("description"),
-  createdAt: integer("created_at", { mode: "timestamp" })
+
+  // Timestamp nativo do Postgres com Fuso Horário
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .defaultNow(),
 });

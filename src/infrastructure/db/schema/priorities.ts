@@ -1,13 +1,16 @@
 // src/infrastructure/db/schema/priorities.ts
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
 
-export const ticketPriorities = sqliteTable("ticket_priorities", {
-  id: text("id").primaryKey(), // Ex: 'low', 'medium', 'high', 'urgent'
-  name: text("name").notNull().unique(), // Ex: "High"
-  level: integer("level").notNull(), // Nível numérico para ordenação (ex: 1 a 4)
+export const ticketPriorities = pgTable("ticket_priorities", {
+  // Slug manual como chave primária (ex: 'low', 'medium', 'high', 'urgent')
+  id: text("id").primaryKey(),
+
+  name: text("name").notNull().unique(), // Ex: "Alta"
+  level: integer("level").notNull(), // Nível numérico para ordenação (ex: 1, 2, 3, 4)
   description: text("description"),
-  createdAt: integer("created_at", { mode: "timestamp" })
+
+  // Timestamp nativo do Postgres com Fuso Horário
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .defaultNow(),
 });

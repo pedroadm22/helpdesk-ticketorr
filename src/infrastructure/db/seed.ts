@@ -2,7 +2,7 @@ import { db } from "./index";
 import { user } from "./schema/auth"; // Tabela de usuários para atualizar a role depois
 import { departments } from "./schema/departments";
 import { services } from "./schema/services";
-import { auth } from "../auth"; // Sua instância do Better Auth
+import { auth } from "@/lib/supabase/"; // Sua instância do Better Auth
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 

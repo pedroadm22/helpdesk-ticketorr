@@ -1,28 +1,65 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+// src/infrastructure/db/schema/faqs.ts
+import {
+  pgTable,
+  text,
+  integer,
+  boolean,
+  timestamp,
+  uuid,
+  index,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { departments } from "./departments";
 import { services } from "./services";
 
-export const faqs = sqliteTable("faq_problems", {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
-  slug: text().unique(),
-  question: text().notNull(),
-  answer: text().notNull(),
-  
-  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+export const faqs = pgTable(
+  "faq_problems",
+  {
+    // 1. UUID Nativo do Postgres gerado pelo banco
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").unique(),
+    question: text("question").notNull(),
+    answer: text("answer").notNull(),
 
-  // Chaves estrangeiras inline na nova sintaxe
-  departmentId: text("department_id").references(() => departments.id, { onDelete: "set null" }),
-  serviceId: text("service_id").references(() => services.id, { onDelete: "set null" }),
+    // 2. Boolean nativo
+    isActive: boolean("is_active").notNull().default(true),
 
-  usefulCount: integer("useful_count").notNull().default(0),
-  notUsefulCount: integer("not_useful_count").notNull().default(0),
+    // 3. Chaves Estrangeiras com UUID
+    departmentId: uuid("department_id").references(() => departments.id, {
+      onDelete: "set null",
+    }),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
-  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
-}, 
-// Nova forma de declarar índices e restrições compostas como segundo argumento
-(table) => [
-  index("faq_department_idx").on(table.departmentId),
-  index("faq_service_idx").on(table.serviceId),
-]);
+    // 4. Contadores Nativos
+    usefulCount: integer("useful_count").notNull().default(0),
+    notUsefulCount: integer("not_useful_count").notNull().default(0),
+
+    // 5. Timestamps Nativos do Postgres com Fuso Horário
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  // Sintaxe moderna de índices no Drizzle (passada no segundo argumento)
+  (table) => [
+    index("faq_department_idx").on(table.departmentId),
+    index("faq_service_idx").on(table.serviceId),
+  ]
+);
+
+// 🤝 Relações para facilitar consultas com db.query.faqs.findMany({ with: { department: true, service: true } })
+export const faqsRelations = relations(faqs, ({ one }) => ({
+  department: one(departments, {
+    fields: [faqs.departmentId],
+    references: [departments.id],
+  }),
+  service: one(services, {
+    fields: [faqs.serviceId],
+    references: [services.id],
+  }),
+}));
