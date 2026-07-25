@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "chat": "tsx src/infrastructure/sockets/server.ts",
     "db:seed": "tsx src/infrastructure/db/seed.ts",
     "db:push": "drizzle-kit push",
