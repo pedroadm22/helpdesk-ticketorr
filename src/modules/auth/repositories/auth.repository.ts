@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { auth } from "@/infrastructure/auth"; // Instância configurada do Better Auth
-import { user } from "@/infrastructure/db/schema/auth"; // Ajuste para o seu schema
+import { users } from "@/infrastructure/db/schema/auth"; // Ajuste para o seu schema
 import {
   IAuthRepository,
   UserEntity,
@@ -35,8 +35,8 @@ export class AuthRepository implements IAuthRepository {
   async findById(id: string): Promise<UserEntity | null> {
     const [foundUser] = await db
       .select()
-      .from(user)
-      .where(eq(user.id, id));
+      .from(users)
+      .where(eq(users.id, id));
 
     return foundUser || null;
   }
@@ -44,21 +44,21 @@ export class AuthRepository implements IAuthRepository {
   async findByEmail(email: string): Promise<UserEntity | null> {
     const [foundUser] = await db
       .select()
-      .from(user)
-      .where(eq(user.email, email));
+      .from(users)
+      .where(eq(users.email, email));
 
     return foundUser || null;
   }
 
   async findAll(role?: string): Promise<UserEntity[]> {
-    if (role && "role" in user) {
+    if (role && "role" in users) {
       return await db
         .select()
-        .from(user)
-        .where(eq(user.role as any, role));
+        .from(users)
+        .where(eq(users.role as any, role));
     }
 
-    return await db.select().from(user);
+    return await db.select().from(users);
   }
 
   async updateUser(
@@ -66,12 +66,12 @@ export class AuthRepository implements IAuthRepository {
     data: Partial<UserInsert>
   ): Promise<UserEntity | null> {
     const [updated] = await db
-      .update(user)
+      .update(users)
       .set({
         ...data,
         updatedAt: new Date(), // Ou .toISOString() se sua coluna for texto
       })
-      .where(eq(user.id, id))
+      .where(eq(users.id, id))
       .returning();
 
     return updated || null;
@@ -79,8 +79,8 @@ export class AuthRepository implements IAuthRepository {
 
   async deleteUser(id: string): Promise<boolean> {
     const [deleted] = await db
-      .delete(user)
-      .where(eq(user.id, id))
+      .delete(users)
+      .where(eq(users.id, id))
       .returning();
 
     return !!deleted;

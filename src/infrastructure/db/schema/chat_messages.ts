@@ -1,24 +1,19 @@
-// src/infrastructure/db/schema/chat_messages.ts
+// Exemplo em chat_messages.ts
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { tickets } from "./tickets";
-import { users } from "./auth";
+import { users } from "./auth"; // Ou "./auth" dependendo de onde está sua tabela de usuário
 
 export const chatMessages = pgTable("chat_messages", {
-  // 1. UUID nativo com geração automática
   id: uuid("id").defaultRandom().primaryKey(),
 
-  // 2. Foreign key com tipo UUID nativo
-  ticketId: uuid("ticket_id")
+  userId: uuid("user_id")
     .notNull()
-    .references(() => tickets.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: "cascade" }),
 
-  senderId: text("user_id") // Ou uuid("user_id") caso a tabela de usuários use UUID
-    .notNull()
-    .references(() => users.id),
+  ticketId: uuid("ticket_id") // Certifique-se de que aqui também seja uuid se o ticket.id for uuid
+    .notNull(),
 
-  message: text("message").notNull(),
-
-  // 3. Data nativa do Postgres com Timezone UTC
+  content: text("content").notNull(),
+  
   createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
     .defaultNow(),

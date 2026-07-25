@@ -1,9 +1,16 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import * as schema from "./schema"; // 👈 Importa TUDO do schema de uma vez só!
+// src/infrastructure/db/index.ts
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
 
-// Conexão síncrona com o arquivo do SQLite local
-const sqlite = new Database("sqlite.db");
+const connectionString = process.env.DATABASE_URL!;
 
-// Instância do Drizzle com a visão completa do banco de dados
-export const db = drizzle(sqlite, { schema });
+// Previne a criação de múltiplas conexões no Next.js (Hot Reload em Dev)
+const globalForDb = globalThis as unknown as {
+  conn: postgres.Sql | undefined;
+};
+
+const conn = globalForDb.conn ?? postgres(connectionString, { max: 10 });
+if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
+
+export const db = drizzle(conn, { schema });

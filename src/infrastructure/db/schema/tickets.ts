@@ -30,7 +30,7 @@ export const tickets = pgTable("tickets", {
   title: text("title").notNull(),
   description: text("description").notNull(),
 
-  // Enums stritamente tipados
+  // Enums estritamente tipados
   status: ticketStatusEnum("status").notNull().default("WAITING_SUPPORT"),
   priority: ticketPriorityEnum("priority").notNull().default("MEDIUM"),
 
@@ -43,11 +43,13 @@ export const tickets = pgTable("tickets", {
     .notNull()
     .references(() => services.id, { onDelete: "restrict" }),
 
-  clientId: text("client_id") // Mantenha uuid("client_id") se o ID do user for UUID no seu schema do Supabase
+  // 🟢 AGORA UUID: Compatível com users.id
+  clientId: uuid("client_id")
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
 
-  agentId: text("agent_id") // Mantenha uuid("agent_id") se o ID do users for UUID
+  // 🟢 AGORA UUID: Compatível com users.id
+  agentId: uuid("agent_id")
     .references(() => users.id, { onDelete: "set null" }),
 
   // Timestamps Nativos do Postgres com Fuso Horário
@@ -60,7 +62,7 @@ export const tickets = pgTable("tickets", {
     .$onUpdate(() => new Date()), // Atualiza a data automaticamente ao editar o registro
 });
 
-// 3. Relações do Drizzle (Permanece quase idêntico ao SQLite)
+// 3. Relações do Drizzle
 export const ticketsRelations = relations(tickets, ({ one }) => ({
   department: one(departments, {
     fields: [tickets.departmentId],
