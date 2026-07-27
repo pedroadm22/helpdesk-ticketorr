@@ -20,6 +20,9 @@ export function useLogin() {
   });
 
   async function handleSubmit(data: LoginInputDto) {
+
+    
+
     setIsPending(true);
     setErrorMessage(null);
 
@@ -39,6 +42,10 @@ export function useLogin() {
     form,
     isPending,
     errorMessage,
-    onSubmit: form.handleSubmit(handleSubmit),
+    // Adicionamos o segundo argumento para capturar falhas do schema no console
+    onSubmit: form.handleSubmit(
+      handleSubmit,
+      (errors) => console.log("⚠️ Erros de validação do Zod:", errors)
+    ),
   };
 }

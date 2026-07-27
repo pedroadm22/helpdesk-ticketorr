@@ -1,5 +1,5 @@
 import { loginSchema, LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/infrastructure/supabase/client";
 
 export type LoginResult = 
   | { success: true }

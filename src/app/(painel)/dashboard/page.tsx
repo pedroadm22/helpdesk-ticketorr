@@ -1,61 +1,37 @@
-// src/app/dashboard/page.tsx
-import { auth } from "@/infrastructure/auth"; // Ajuste para o caminho real do seu arquivo do Better Auth
-import { headers } from "next/headers";
+"@/infrastructure/supabase/server"// src/app/dashboard/page.tsx
 import { redirect } from "next/navigation";
-import { ListTicketsUseCase } from "@/modules/tickets/use-cases/list-tickets.use-case";
-import { TicketTable } from "@/components/features/ticket/TicketTable";
-import { UserRole } from "@/shared/types/domain/user";
+import { createClient } from "@/infrastructure/supabase/server"; // Ajuste o caminho para onde fica seu createServerClient
 
 export default async function DashboardPage() {
-  // 1. Captura a sessão do usuário de forma segura no servidor
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  // 1. Instancia o cliente do Supabase no servidor
+  const supabase = await createClient();
 
-  if (!session) {
-    redirect("/");
+  // 2. Obtém os dados do usuário autenticado diretamente no servidor
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  // 3. Se não houver usuário logado ou a sessão for inválida, redireciona para o login
+  if (error || !user) {
+    redirect("/login");
   }
 
-  const usuarioRole = session.user.role as UserRole; // 2. S
-  // e o usuário não estiver autenticado, redireciona para a raiz/login
-
-  // 3. Executa o caso de uso injetando o ID e a Role obtidos da sessão
-  const chamadosFiltrados = await ListTicketsUseCase({
-    usuarioId: session.user.id,
-    role: usuarioRole,
-  });
-
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 min-h-screen bg-zinc-950 text-zinc-100">
-      {/* Cabeçalho da Dashboard */}
-      <header className="flex justify-between items-center border-b border-zinc-900 pb-5">
+    <div className="p-6 space-y-6">
+      <header className="flex justify-between items-center pb-4 border-b">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-            Fila de Atendimentos
-          </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Olá,{" "}
-            <span className="text-zinc-200 font-medium">
-              {session.user.name}
-            </span>
-            . Você está navegando com o perfil de{" "}
-            <span className="text-blue-400 font-semibold uppercase text-xs tracking-wider bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/30">
-              {session.user.role}
-            </span>
+          <h1 className="text-2xl font-bold">Painel de Atendimento</h1>
+          <p className="text-sm text-muted-foreground">
+            Bem-vindo(a), <span className="font-semibold">{user.email}</span>
           </p>
         </div>
       </header>
 
-      {/* 4. Lista ou Tabela de Chamados protegida */}
-      {chamadosFiltrados.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-4 border border-dashed border-zinc-800 rounded-xl bg-zinc-900/10">
-          <p className="text-sm text-zinc-500">
-            Nenhum chamado encontrado para o seu perfil.
-          </p>
-        </div>
-      ) : (
-        <TicketTable tickets={chamadosFiltrados} />
-      )}
+      {/* Conteúdo do Dashboard / Lista de Chamados */}
+      <main>
+        {/* Aqui iremos renderizar os componentes da lista de tickets */}
+      </main>
     </div>
   );
 }

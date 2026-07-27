@@ -22,6 +22,8 @@ export function useRegister() {
   });
 
   async function handleSubmit(data: RegisterInput) {
+    
+
     setIsPending(true);
     setErrorMessage(null);
 

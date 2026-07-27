@@ -2,7 +2,7 @@
 
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/infrastructure/supabase/server";
 import { registerSchema, RegisterInput } from "@/modules/auth/dto/register-user.dto";
 
 export type RegisterResult = 

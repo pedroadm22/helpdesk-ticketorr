@@ -1,12 +1,14 @@
+// src/infrastructure/supabase/server.ts
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { env } from "@/config/env";
 
 export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.supabase.url!,
+    env.supabase.anonKey!,
     {
       cookies: {
         getAll() {
@@ -18,8 +20,8 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Chamado a partir de Server Component puro (RSC).
-            // Ignorado de propósito pois RSCs não podem escrever cookies diretamente.
+            // O método setAll foi chamado de um Server Component.
+            // Isso pode ser ignorado se você tiver o middleware atualizando as sessões dos usuários.
           }
         },
       },

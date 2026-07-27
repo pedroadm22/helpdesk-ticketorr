@@ -2,7 +2,7 @@
 import { HiOutlineTicket } from "react-icons/hi";
 
 import { Menu, X, User } from "lucide-react";
-import { LogoutButton } from "../ui/LogoutButton";
+// import { LogoutButton } from "../ui/LogoutButton";
 
 interface HeaderProps {
   isSidebarOpen: boolean;
@@ -33,7 +33,7 @@ export function Header({ isSidebarOpen, onToggleSidebar, userName }: HeaderProps
           <User size={16} className="text-zinc-400" />
           <span className="max-w-30 truncate text-xs text-zinc-300">{userName}</span>
         </div>
-        <LogoutButton/>
+        {/* <LogoutButton/> */}
       </div>
 
     </header>
