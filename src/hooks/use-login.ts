@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
 import { loginSchema, LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
-import { loginAction } from "@/actions/login.action";
+import { loginAction } from "@/actions/auth-login/login.action";
 
 export function useLogin() {
   const router = useRouter();

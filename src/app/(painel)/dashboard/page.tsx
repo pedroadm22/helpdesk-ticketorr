@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   // 3. Se não houver usuário logado ou a sessão for inválida, redireciona para o login
   if (error || !user) {
-    redirect("/login");
+    redirect("/");
   }
 
   return (
