@@ -1,17 +1,12 @@
-import { db } from "@/infrastructure/db";
-import { departments } from "@/infrastructure/db/schema/departments";
-import { asc } from "drizzle-orm";
+import {
+  departmentRepository,
+  DepartmentEntity,
+} from "../repositories/department.repository";
 
-type Department = typeof departments.$inferSelect;
+export async function listDepartmentsUseCase(): Promise<DepartmentEntity[]> {
+  // Retorna todos os departamentos diretamente pelo repositório
+  const result = await departmentRepository.findAll();
 
-export class ListDepartmentsUseCase {
-  async execute(): Promise<Department[]> {
-    // Busca e ordena de forma ascendente pelo nome do setor
-    const result = await db
-      .select()
-      .from(departments)
-      .orderBy(asc(departments.name));
-
-    return result;
-  }
+  // Garante a ordenação alfabética pelo nome
+  return result.sort((a, b) => a.name.localeCompare(b.name));
 }

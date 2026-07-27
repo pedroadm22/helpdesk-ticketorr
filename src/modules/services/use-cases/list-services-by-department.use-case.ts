@@ -1,19 +1,18 @@
-import { db } from "@/infrastructure/db";
-import { services } from "@/infrastructure/db/schema"; // Importa do barrel file da infraestrutura
-import { eq, asc } from "drizzle-orm";
+import {
+  serviceRepository,
+  ServiceEntity,
+} from "../repositories/service.repository";
 
-// 🌟 Inferimos o tipo do serviço diretamente da tabela, sem criar arquivos extras!
-type Service = typeof services.$inferSelect;
-
-export class ListServicesByDepartmentUseCase {
-  // Recebe o ID diretamente como string e retorna uma Promise de array de Services
-  async execute(departmentId: string): Promise<Service[]> {
-    const result = await db
-      .select()
-      .from(services)
-      .where(eq(services.departmentId, departmentId))
-      .orderBy(asc(services.name));
-
-    return result;
+export async function listServicesByDepartmentUseCase(
+  departmentId: string
+): Promise<ServiceEntity[]> {
+  // 1. Validação básica de entrada
+  if (!departmentId) {
+    throw new Error("O ID do departamento é obrigatório para listar os serviços.");
   }
+
+  // 2. Busca via repositório funcional
+  const result = await serviceRepository.findByDepartmentId(departmentId);
+
+  return result;
 }

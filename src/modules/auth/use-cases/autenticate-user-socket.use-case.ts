@@ -1,33 +1,27 @@
-import { db } from "@/infrastructure/db";
-import { user } from "@/infrastructure/db/schema/auth";
-import { eq } from "drizzle-orm";
+import { authRepository } from "../repositories/auth.repository";
 
-interface UsuarioSocketDTO {
+export interface UsuarioSocketDTO {
   id: string;
   name: string;
-  role: "CLIENTE" | "TECNICO" | "ADMIN";
+  role: "CLIENT" | "TECHNICIAN" | "ADMIN";
 }
 
-export async function autenticarUsuarioSocketUseCase(usuarioId: string): Promise<UsuarioSocketDTO | null> {
+export async function autenticarUsuarioSocketUseCase(
+  usuarioId: string
+): Promise<UsuarioSocketDTO | null> {
   if (!usuarioId) return null;
 
   try {
-    const [usuario] = await db
-      .select({
-        id: user.id,
-        name: user.name,
-        role: user.role,
-      })
-      .from(user)
-      .where(eq(user.id, usuarioId))
-      .limit(1);
+    // 1. Busca o perfil do usuário através do repositório
+    const usuario = await authRepository.findById(usuarioId);
 
     if (!usuario) return null;
 
+    // 2. Mapeia para o DTO do Socket garantindo os enums padronizados em inglês
     return {
       id: usuario.id,
       name: usuario.name || "Usuário",
-      role: (usuario.role as "CLIENTE" | "TECNICO" | "ADMIN") || "CLIENTE",
+      role: (usuario.role as "CLIENT" | "TECHNICIAN" | "ADMIN") || "CLIENT",
     };
   } catch (error) {
     console.error("❌ Erro no caso de uso de autenticação do socket:", error);

@@ -1,12 +1,11 @@
-// faqs/use-cases/create-faq.use-case.ts
 import { CreateFaqInput } from "../dto/create-faq.dto";
-import { IFaqRepository, FaqEntity } from "../repositories/faq.repository.interface";
+import { faqRepository, FaqEntity } from "../repositories/faq.repository";
 
-export class CreateFaqUseCase {
-  constructor(private faqRepository: IFaqRepository) {}
-
-  async execute(input: CreateFaqInput): Promise<FaqEntity> {
-    const slug = input.slug || input.question
+export async function createFaqUseCase(input: CreateFaqInput): Promise<FaqEntity> {
+  // 1. Tratamento do slug a partir da entrada ou da pergunta
+  const slug =
+    input.slug ||
+    input.question
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
@@ -14,13 +13,13 @@ export class CreateFaqUseCase {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-    return await this.faqRepository.create({
-      question: input.question,
-      answer: input.answer,
-      slug,
-      isActive: input.isActive ?? true,
-      departmentId: input.departmentId || null,
-      serviceId: input.serviceId || null,
-    });
-  }
+  // 2. Chamada direta ao repositório funcional
+  return await faqRepository.create({
+    question: input.question,
+    answer: input.answer,
+    slug,
+    isActive: input.isActive ?? true,
+    departmentId: input.departmentId || null,
+    serviceId: input.serviceId || null,
+  });
 }

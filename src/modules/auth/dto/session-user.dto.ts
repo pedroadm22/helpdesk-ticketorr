@@ -1,9 +1,9 @@
 import { createSelectSchema } from "drizzle-zod";
-import { user } from "@/infrastructure/db/schema/auth";
+import { users } from "@/infrastructure/db/schema/auth";
 import { z } from "zod";
 
 // Usamos o schema da tabela física de usuários como base
-export const sessionUserSchema = createSelectSchema(user).pick({
+export const sessionUserSchema = createSelectSchema(users).pick({
   id: true,
   name: true,
   email: true,

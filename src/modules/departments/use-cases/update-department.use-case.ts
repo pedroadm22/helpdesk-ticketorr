@@ -1,30 +1,49 @@
-import { db } from "@/infrastructure/db";
-import { departments } from "@/infrastructure/db/schema/departments";
-import { UpdateDepartmentInput, updateDepartmentSchema } from "../dto/update-department.dto";
-import { eq } from "drizzle-orm";
+import {
+  UpdateDepartmentInput,
+  updateDepartmentSchema,
+} from "../dto/update-department.dto";
+import {
+  departmentRepository,
+  DepartmentEntity,
+} from "../repositories/department.repository";
 
-// 🌟 Inferindo o tipo do select do Drizzle diretamente do schema da tabela
-type Department = typeof departments.$inferSelect;
+export async function updateDepartmentUseCase(
+  input: UpdateDepartmentInput
+): Promise<DepartmentEntity> {
+  // 1. Valida a entrada com o Zod
+  const validatedData = updateDepartmentSchema.parse(input);
 
-export class UpdateDepartmentUseCase {
-  // Usamos o tipo inferido diretamente aqui, sem precisar de um arquivo DTO de saída dedicado!
-  async execute(input: UpdateDepartmentInput): Promise<Department> {
-    const validatedData = updateDepartmentSchema.parse(input);
+  // 2. Regra de Negócio: Verifica se o departamento existe
+  const existingDepartment = await departmentRepository.findById(
+    validatedData.id
+  );
 
-    const [updated] = await db
-      .update(departments)
-      .set({
-        ...(validatedData.name && { name: validatedData.name }),
-        ...(validatedData.description !== undefined && { description: validatedData.description }),
-        updatedAt: new Date(), // Ajustado para aceitar Date conforme o erro anterior!
-      })
-      .where(eq(departments.id, validatedData.id))
-      .returning();
-
-    if (!updated) {
-      throw new Error("Não foi possível atualizar: Departamento não encontrado.");
-    }
-
-    return updated;
+  if (!existingDepartment) {
+    throw new Error("Não foi possível atualizar: Departamento não encontrado.");
   }
+
+  // 3. Regra de Negócio: Se alterou o nome, garante que não colide com outro departamento existente
+  if (validatedData.name && validatedData.name !== existingDepartment.name) {
+    const departmentWithSameName = await departmentRepository.findByName(
+      validatedData.name
+    );
+
+    if (departmentWithSameName) {
+      throw new Error("Já existe outro departamento cadastrado com este nome.");
+    }
+  }
+
+  // 4. Atualiza os dados através do repositório
+  const updatedDepartment = await departmentRepository.update(validatedData.id, {
+    ...(validatedData.name && { name: validatedData.name }),
+    ...(validatedData.description !== undefined && {
+      description: validatedData.description,
+    }),
+  });
+
+  if (!updatedDepartment) {
+    throw new Error("Erro ao atualizar o departamento.");
+  }
+
+  return updatedDepartment;
 }

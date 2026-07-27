@@ -1,17 +1,18 @@
-import { IAuthRepository } from "../repositories/auth.repository.interface";
-import { LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
+import { LoginInputDto, loginSchema } from "@/modules/auth/dto/login-submit.dto";
+import { authRepository, AuthResponse } from "../repositories/auth.repository";
 
-export class LoginUseCase {
-  constructor(private authRepository: IAuthRepository) {}
+export async function loginSubmitUseCase(
+  input: LoginInputDto
+): Promise<AuthResponse> {
+  // 1. Valida a entrada de email/senha com o Zod
+  const validatedData = loginSchema.parse(input);
 
-  async execute(dto: LoginInputDto) {
-    // 1. Executa a tentativa de login via Repositório
-    const result = await this.authRepository.signInWithEmail(dto);
+  // 2. Executa a autenticação via Supabase Auth no repositório funcional
+  const result = await authRepository.signInWithEmail(validatedData);
 
-    if (!result.success) {
-      throw new Error(result.message || "Falha na autenticação.");
-    }
-
-    return result;
+  if (!result.success) {
+    throw new Error(result.message || "Falha na autenticação.");
   }
+
+  return result;
 }

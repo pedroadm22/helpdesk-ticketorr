@@ -1,35 +1,32 @@
-import { db } from "@/infrastructure/db";
-import { departments } from "@/infrastructure/db/schema/departments";
-import { CreateDepartmentInput, createDepartmentSchema } from "../dto/create-department.dto";
-import { randomUUID } from "crypto";
+import {
+  CreateDepartmentInput,
+  createDepartmentSchema,
+} from "../dto/create-department.dto";
+import {
+  departmentRepository,
+  DepartmentEntity,
+} from "../repositories/department.repository";
 
-// 🌟 Inferindo o tipo de retorno diretamente da tabela do Drizzle
-type Department = typeof departments.$inferSelect;
+export async function createDepartmentUseCase(
+  input: CreateDepartmentInput
+): Promise<DepartmentEntity> {
+  // 1. Valida a entrada com o Zod
+  const validatedData = createDepartmentSchema.parse(input);
 
-export class CreateDepartmentUseCase {
-  async execute(input: CreateDepartmentInput): Promise<Department> {
-    // 1. Valida a entrada com o DTO do Zod
-    const validatedData = createDepartmentSchema.parse(input);
+  // 2. Regra de Negócio: Verifica se já existe um departamento com o mesmo nome
+  const existingDepartment = await departmentRepository.findByName(
+    validatedData.name
+  );
 
-    // 2. Prepara o objeto com timestamps no formato Date esperado pelo seu schema
-    const newDepartment = {
-      id: randomUUID(),
-      name: validatedData.name,
-      description: validatedData.description ?? null,
-      createdAt: new Date(), 
-      updatedAt: new Date(),
-    };
-
-    // 3. Insere no SQLite
-    const [inserted] = await db
-      .insert(departments)
-      .values(newDepartment)
-      .returning();
-
-    if (!inserted) {
-      throw new Error("Erro ao criar o departamento no banco de dados.");
-    }
-
-    return inserted;
+  if (existingDepartment) {
+    throw new Error("Já existe um departamento cadastrado com este nome.");
   }
+
+  // 3. Cria o departamento através do repositório funcional
+  const newDepartment = await departmentRepository.create({
+    name: validatedData.name,
+    description: validatedData.description ?? null,
+  });
+
+  return newDepartment;
 }

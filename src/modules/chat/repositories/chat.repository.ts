@@ -1,15 +1,20 @@
 import { eq, asc } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { chatMessages } from "@/infrastructure/db/schema/chat_messages";
-import { user } from "@/infrastructure/db/schema/auth"; // Schema de usuários para o Join
-import {
-  IChatRepository,
-  ChatMessageEntity,
-  ChatMessageInsert,
-  ChatMessageWithSender,
-} from "./chat.repository.interface";
+import { users } from "@/infrastructure/db/schema/auth";
 
-export class ChatRepository implements IChatRepository {
+export type ChatMessageEntity = typeof chatMessages.$inferSelect;
+export type ChatMessageInsert = typeof chatMessages.$inferInsert;
+
+export type ChatMessageWithSender = ChatMessageEntity & {
+  sender?: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+};
+
+export const chatRepository = {
   async createMessage(data: ChatMessageInsert): Promise<ChatMessageEntity> {
     const [inserted] = await db
       .insert(chatMessages)
@@ -21,24 +26,25 @@ export class ChatRepository implements IChatRepository {
     }
 
     return inserted;
-  }
+  },
 
   async findById(id: string): Promise<ChatMessageEntity | null> {
     const [message] = await db
       .select()
       .from(chatMessages)
-      .where(eq(chatMessages.id, id));
+      .where(eq(chatMessages.id, id))
+      .limit(1);
 
     return message || null;
-  }
+  },
 
   async findByTicketId(ticketId: string): Promise<ChatMessageEntity[]> {
     return await db
       .select()
       .from(chatMessages)
       .where(eq(chatMessages.ticketId, ticketId))
-      .orderBy(asc(chatMessages.createdAt)); // Ordena do mais antigo para o mais recente (cronológico)
-  }
+      .orderBy(asc(chatMessages.createdAt));
+  },
 
   async findByTicketIdWithSender(
     ticketId: string
@@ -47,13 +53,13 @@ export class ChatRepository implements IChatRepository {
       .select({
         message: chatMessages,
         sender: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
+          id: users.id,
+          name: users.name,
+          email: users.email,
         },
       })
       .from(chatMessages)
-      .leftJoin(user, eq(chatMessages.senderId, user.id))
+      .leftJoin(users, eq(chatMessages.userId, users.id))
       .where(eq(chatMessages.ticketId, ticketId))
       .orderBy(asc(chatMessages.createdAt));
 
@@ -61,7 +67,7 @@ export class ChatRepository implements IChatRepository {
       ...row.message,
       sender: row.sender?.id ? row.sender : undefined,
     }));
-  }
+  },
 
   async deleteMessage(id: string): Promise<boolean> {
     const [deleted] = await db
@@ -70,5 +76,5 @@ export class ChatRepository implements IChatRepository {
       .returning();
 
     return !!deleted;
-  }
-}
+  },
+};

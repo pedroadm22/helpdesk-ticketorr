@@ -1,13 +1,12 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/infrastructure/db"; // Ajuste o caminho da sua conexão
+import { db } from "@/infrastructure/db";
 import { services } from "@/infrastructure/db/schema/services";
-import {
-  IServiceRepository,
-  ServiceEntity,
-  ServiceInsert,
-} from "./service.repository.interface";
 
-export class ServiceRepository implements IServiceRepository {
+// 🌟 Tipos exportados diretamente do schema do Drizzle
+export type ServiceEntity = typeof services.$inferSelect;
+export type ServiceInsert = typeof services.$inferInsert;
+
+export const serviceRepository = {
   async create(data: ServiceInsert): Promise<ServiceEntity> {
     const [inserted] = await db.insert(services).values(data).returning();
 
@@ -16,7 +15,7 @@ export class ServiceRepository implements IServiceRepository {
     }
 
     return inserted;
-  }
+  },
 
   async findById(id: string): Promise<ServiceEntity | null> {
     const [service] = await db
@@ -25,7 +24,7 @@ export class ServiceRepository implements IServiceRepository {
       .where(eq(services.id, id));
 
     return service || null;
-  }
+  },
 
   async findByName(name: string): Promise<ServiceEntity | null> {
     const [service] = await db
@@ -34,18 +33,18 @@ export class ServiceRepository implements IServiceRepository {
       .where(eq(services.name, name));
 
     return service || null;
-  }
+  },
 
   async findByDepartmentId(departmentId: string): Promise<ServiceEntity[]> {
     return await db
       .select()
       .from(services)
       .where(eq(services.departmentId, departmentId));
-  }
+  },
 
   async findAll(): Promise<ServiceEntity[]> {
     return await db.select().from(services);
-  }
+  },
 
   async update(
     id: string,
@@ -61,7 +60,7 @@ export class ServiceRepository implements IServiceRepository {
       .returning();
 
     return updated || null;
-  }
+  },
 
   async delete(id: string): Promise<boolean> {
     const [deleted] = await db
@@ -70,5 +69,5 @@ export class ServiceRepository implements IServiceRepository {
       .returning();
 
     return !!deleted;
-  }
-}
+  },
+};

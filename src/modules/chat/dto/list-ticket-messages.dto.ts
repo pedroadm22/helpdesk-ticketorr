@@ -5,7 +5,7 @@ export const ListTicketMessagesSchema = z.object({
   
   // 🔐 Segurança: Dados vindos do usuário autenticado na requisição
   requestedByUserId: z.string().min(1, "ID do usuário é obrigatório"),
-  requestedByUserRole: z.enum(["admin", "technician", "user"]),
+  requestedByUserRole: z.enum(["ADMIN", "TECHNICIAN", "CLIENT"]),
 });
 
 export type ListTicketMessagesInput = z.infer<typeof ListTicketMessagesSchema>;

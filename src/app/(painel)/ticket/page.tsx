@@ -1,26 +1,28 @@
-// src/app/ticket/page.tsx
-import { auth } from "@/infrastructure/auth";
-import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import Link from "next/link"; // 🌟 Importado para o botão
-import { Plus } from "lucide-react"; // Ícone elegante
-import { listarTicketsUseCase } from "@/modules/tickets/use-cases/ListarTicketUseCase";
+import { Plus } from "lucide-react";
+
+import { getCurrentUser } from "@/modules/auth/use-cases/get-current-user.use-case";
+import { ListTicketUseCase } from "@/modules/tickets/use-cases/list-tickets.use-case";
 import { TicketTable } from "@/components/features/ticket/TicketTable";
-import { UserRole } from '@/shared/types/domain/user';
+import { UserRole } from "@/shared/types/domain/user";
+
+const listTicketUseCase = new ListTicketUseCase();
 
 export default async function TicketsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  // 1. Obtém o usuário logado e sua role vinda do banco (public.users)
+  const user = await getCurrentUser();
 
-  if (!session) {
-    redirect("/");
+  // 2. Se não houver sessão ativa, redireciona para a tela de login
+  if (!user) {
+    redirect("/login");
   }
 
-  const userRole = session.user.role as UserRole;
+  const userRole = user.role as UserRole;
 
+  // 3. Executa o Use Case com o ID e Role validados no Supabase/Drizzle
   const chamados = await listarTicketsUseCase({
-    usuarioId: session.user.id,
+    usuarioId: user.id,
     role: userRole,
   });
 
@@ -41,10 +43,10 @@ export default async function TicketsPage() {
           </p>
         </div>
 
-        {/* 🌟 BOTÃO DE ABRIR CHAMADO ADICIONADO DE VOLTA */}
+        {/* Botão de Abrir Chamado */}
         <div>
           <Link
-            href="/ticket/abrir-ticket" // ⚠️ Ajuste aqui para a sua rota real de criar chamado
+            href="/ticket/abrir-ticket"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-all shadow-lg shadow-blue-600/15"
           >
             <Plus className="w-4 h-4" />

@@ -1,29 +1,45 @@
-import { auth } from "@/infrastructure/auth"; // 🌟 Importação correta do SERVIDOR
 import { RegisterInput, registerSchema } from "../dto/register-user.dto";
+import { createClient } from "@/infrastructure/supabase/server";
+import { authRepository } from "../repositories/auth.repository";
 
-export class RegisterUseCase {
-  async execute(input: RegisterInput): Promise<{ userId: string; email: string }> {
-    // 1. Validamos os dados recebidos utilizando o nosso DTO (Zod)
-    const validatedData = registerSchema.parse(input);
+export interface RegisterUserOutput {
+  userId: string;
+  email: string;
+}
 
-    // 2. Registramos o usuário usando a API nativa de servidor do Better Auth
-    // Como 'role' tem o defaultValue: "CLIENT" no banco e input: false,
-    // o Better Auth se encarrega de preencher a role automaticamente de forma segura!
-    const user = await auth.api.signUpEmail({
-      body: {
-        email: validatedData.email,
-        password: validatedData.password,
-        name: validatedData.name,
-      },
-    });
+export async function registerUserUseCase(
+  input: RegisterInput
+): Promise<RegisterUserOutput> {
+  // 1. Validação de formato dos dados com Zod
+  const validatedData = registerSchema.parse(input);
 
-    if (!user) {
-      throw new Error("Erro inesperado ao registrar o usuário no sistema.");
-    }
+  const supabase = await createClient();
 
-    return {
-      userId: user.user.id,
-      email: user.user.email,
-    };
+  // 2. Cadastro no Supabase Auth (auth.users)
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: validatedData.email,
+    password: validatedData.password,
+    options: {
+      data: { name: validatedData.name },
+    },
+  });
+
+  if (authError || !authData.user) {
+    throw new Error(authError?.message || "Erro ao realizar o cadastro.");
   }
+
+  const userId = authData.user.id;
+
+  // 3. Criação do perfil do usuário na tabela pública via repositório
+  await authRepository.createUserProfile({
+    id: userId,
+    email: validatedData.email,
+    name: validatedData.name,
+    role: "CLIENT",
+  });
+
+  return {
+    userId,
+    email: validatedData.email,
+  };
 }
