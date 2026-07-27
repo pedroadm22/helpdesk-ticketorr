@@ -1,72 +1,76 @@
+// src/components/layout/sidebar.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Kanban, Ticket, ShieldCheck } from "lucide-react";
+import { navItems, UserRole } from "@/config/navigation.config";
 import { cn } from "@/shared/utils/cn";
-import { Button } from "@/components/ui/button";
+import { Ticket } from "lucide-react";
 
-export function Sidebar() {
+interface SidebarProps {
+  userRole: UserRole;
+}
+
+export function Sidebar({ userRole }: SidebarProps) {
   const pathname = usePathname();
 
-  const itensMenu = [
-    { label: "Dashboard", href: "/dashboard", icon: Kanban },
-    { label: "Chamados", href: "/ticket", icon: Ticket },
-    { label: "Admin", href: "/admin", icon: ShieldCheck },
-  ];
+  // Filtra apenas as rotas permitidas para a role atual
+  const filteredNavItems = navItems.filter((item) =>
+    item.roles.includes(userRole)
+  );
 
   return (
-    <aside className="w-64 h-screen bg-zinc-950 border-r border-zinc-900 p-4 space-y-6 flex flex-col justify-between">
-      <div className="space-y-6">
-        {/* Header do Logo */}
-        <div className="px-2 py-4">
-          <span className="text-lg font-bold tracking-wider text-blue-500 uppercase">
-            Ticketorr
-          </span>
+    <aside className="w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col h-screen sticky top-0 p-4">
+      {/* Brand / Logo */}
+      <div className="flex items-center gap-2.5 px-3 py-4 mb-4 border-b border-zinc-800/60">
+        <div className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <Ticket className="size-4" />
         </div>
+        <span className="font-bold text-zinc-100 tracking-tight text-lg">
+          Ticketorr
+        </span>
+      </div>
 
-        {/* Navegação */}
-        <nav className="space-y-1">
-          {itensMenu.map((item) => {
-            const itemAtivo =
-              item.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname.startsWith(item.href);
+      {/* Menus Dinâmicos */}
+      <nav className="space-y-1 flex-1">
+        {filteredNavItems.map((item) => {
+          const Icon = item.icon;
+          const isActive =
+            pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-            const Icone = item.icon;
-
-            return (
-              <Button
-                key={item.href}
-                variant="ghost"
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                isActive
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/60"
+              )}
+            >
+              <Icon
                 className={cn(
-                  // 'p-0' remove o padding do Button para transferir totalmente para o Link
-                  "w-full h-auto p-0 justify-start cursor-pointer text-sm font-medium transition-all duration-200 group",
-                  itemAtivo
-                    ? "bg-blue-600/10 text-blue-400 border border-blue-500/20 hover:bg-blue-600/20 hover:text-blue-300"
-                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border border-transparent"
+                  "h-4 w-4 shrink-0",
+                  isActive ? "text-emerald-400" : "text-zinc-500"
                 )}
-              >
-                {/* O Link ocupa 100% da área e controla o layout horizontal (flex-row) */}
-                <Link
-                  href={item.href}
-                  className="w-full flex items-center justify-start gap-3 px-4 py-3 cursor-pointer"
-                >
-                  <Icone
-                    size={18}
-                    className={cn(
-                      "shrink-0 transition-colors",
-                      itemAtivo
-                        ? "text-blue-400"
-                        : "text-zinc-500 group-hover:text-zinc-300"
-                    )}
-                  />
-                  <span>{item.label}</span>
-                </Link>
-              </Button>
-            );
-          })}
-        </nav>
+              />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Indicator de Role do Usuário no rodapé da Sidebar */}
+      <div className="pt-4 border-t border-zinc-800/60 px-3">
+        <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
+          Perfil Conectado
+        </p>
+        <p className="text-xs font-semibold text-emerald-400 mt-0.5">
+          {userRole === "ADMIN" && "Administrador"}
+          {userRole === "TECHNICIAN" && "Técnico de Suporte"}
+          {userRole === "CLIENT" && "Cliente / Solicitante"}
+        </p>
       </div>
     </aside>
   );

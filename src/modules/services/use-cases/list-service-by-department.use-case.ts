@@ -1,3 +1,4 @@
+// src/modules/catalog/use-cases/list-services-by-department.use-case.ts
 import {
   serviceRepository,
   ServiceEntity,

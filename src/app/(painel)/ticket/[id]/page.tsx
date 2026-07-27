@@ -3,6 +3,7 @@
 import { notFound } from "next/navigation";
 import { getCurrentUserUseCase } from "@/modules/auth/use-cases/get-current-user.use-case";
 import { getTicketDetailsUseCase } from "@/modules/tickets/use-cases/get-ticket-details.use-case";
+import { listTechniciansUseCase } from "@/modules/auth/use-cases/list-technicians.use-case";
 import { TechnicianOption } from "@/components/features/ticket-details/ticket-admin-actions";
 
 import { TicketHeaderCard } from "@/components/features/ticket-details/ticket-header-card";
@@ -12,8 +13,6 @@ import { TicketAdminActions } from "@/components/features/ticket-details/ticket-
 interface TicketDetailPageProps {
   params: Promise<{ id: string }>;
 }
-
-import { listTechniciansUseCase } from "@/modules/auth/use-cases/list-technicians.use-case";
 
 export default async function TicketDetailPage({
   params,
@@ -37,6 +36,7 @@ export default async function TicketDetailPage({
 
   return (
     <div className="p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Cabeçalho do Chamado */}
       <TicketHeaderCard ticket={ticket} currentUserRole={user.role} />
 
       {/* Componente de ações do ADMIN */}
@@ -48,16 +48,16 @@ export default async function TicketDetailPage({
         />
       )}
 
-      {/* 3. Área de Comunicação (Chat do Chamado) */}
+      {/* Área de Comunicação e Detalhes */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Chat Principal */}
+        {/* Chat Principal em Tempo Real */}
         <div className="lg:col-span-3">
           <TicketChat ticketId={ticket.id} currentUser={user} />
         </div>
 
-        {/* Sidebar de Status/Histórico rápido */}
+        {/* Sidebar de Status / Linha do Tempo */}
         <div className="space-y-4">
-          <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-3">
+          <div className="p-4 bg-zinc-950/80 border border-zinc-800 rounded-2xl space-y-3">
             <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
               Linha do Tempo
             </h4>

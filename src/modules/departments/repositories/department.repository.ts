@@ -8,10 +8,7 @@ export type DepartmentInsert = typeof departments.$inferInsert;
 
 export const departmentRepository = {
   async create(data: DepartmentInsert): Promise<DepartmentEntity> {
-    const [inserted] = await db
-      .insert(departments)
-      .values(data)
-      .returning();
+    const [inserted] = await db.insert(departments).values(data).returning();
 
     if (!inserted) {
       throw new Error("Erro ao criar departamento no banco de dados.");
@@ -20,12 +17,11 @@ export const departmentRepository = {
     return inserted;
   },
 
-  async findById(id: string): Promise<DepartmentEntity | null> {
+  async findById(id: string) {
     const [department] = await db
       .select()
       .from(departments)
-      .where(eq(departments.id, id))
-      .limit(1);
+      .where(eq(departments.id, id));
 
     return department || null;
   },
@@ -46,7 +42,7 @@ export const departmentRepository = {
 
   async update(
     id: string,
-    data: Partial<DepartmentInsert>
+    data: Partial<DepartmentInsert>,
   ): Promise<DepartmentEntity | null> {
     const [updated] = await db
       .update(departments)
@@ -77,7 +73,7 @@ export const departmentRepository = {
         description: departments.description,
         createdAt: departments.createdAt,
         // sql agregador nativo do Drizzle convertendo para inteiro
-        servicesCount: sql<number>`count(${services.id})::int`, 
+        servicesCount: sql<number>`count(${services.id})::int`,
       })
       .from(departments)
       .leftJoin(services, eq(services.departmentId, departments.id))

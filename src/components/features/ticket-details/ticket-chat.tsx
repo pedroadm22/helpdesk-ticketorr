@@ -1,133 +1,148 @@
-// src/components/features/tickets/ticket-chat.tsx
+// src/components/features/ticket-details/ticket-chat.tsx
 "use client";
 
-import { useState } from "react";
-import { Send, MessageSquare, Loader2, Paperclip } from "lucide-react";
+import { useEffect, useState, SubmitEvent } from "react";
+import { io, Socket } from "socket.io-client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Send } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
 interface Message {
   id: string;
-  senderId: string;
-  senderName: string;
-  senderRole: "CLIENT" | "TECHNICIAN" | "ADMIN";
-  content: string;
-  createdAt: Date;
+  conteudo: string;
+  criadoEm: string;
+  remetente: {
+    id: string;
+    name: string;
+    role: string;
+  };
 }
 
 interface TicketChatProps {
   ticketId: string;
-  currentUser: {
+  currentUser?: {
     id: string;
-    name: string | null; // 👈 Aceita null para bater com o CurrentUserDTO
-    role: "CLIENT" | "TECHNICIAN" | "ADMIN";
+    name: string | null; // <--- Alterado para aceitar null
+    role: string;
   };
+  initialMessages?: Message[];
 }
 
-export function TicketChat({ ticketId, currentUser }: TicketChatProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    // Exemplo de estado inicial/mock para montar a interface
-    {
-      id: "1",
-      senderId: "system",
-      senderName: "Sistema",
-      senderRole: "ADMIN",
-      content: "Chamado aberto com sucesso. Aguarde o atendimento do técnico.",
-      createdAt: new Date(),
-    },
-  ]);
-  const [newMessage, setNewMessage] = useState("");
-  const [isSending, setIsSending] = useState(false);
+export function TicketChat({ ticketId, currentUser, initialMessages = [] }: TicketChatProps) {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [inputContent, setInputContent] = useState("");
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  useEffect(() => {
+    // Proteção caso o usuário ainda não esteja carregado
+    if (!currentUser?.id) return;
+
+    // Conecta no servidor WebSocket isolado (porta 3001)
+    const socketInstance = io("http://localhost:3001", {
+      auth: {
+        usuarioId: currentUser.id,
+      },
+    });
+
+    setSocket(socketInstance);
+
+    // Entra na sala específica do chamado
+    socketInstance.emit("entrar_chamado", { ticketId });
+
+    // Escuta novas mensagens em tempo real
+    socketInstance.on("receber_mensagem", (novaMensagem: Message) => {
+      setMessages((prev) => [...prev, novaMensagem]);
+    });
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [ticketId, currentUser?.id]);
+
+  const handleSendMessage = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || isSending) return;
+    if (!inputContent.trim() || !socket || !currentUser?.id) return;
 
-    setIsSending(true);
-
-    // Adiciona otimisticamente na UI (depois conectamos com a Server Action/WebSocket)
-    const tempMsg: Message = {
-      id: Date.now().toString(),
-      senderId: currentUser.id,
-      senderName: currentUser.name || "Você",
-      senderRole: currentUser.role,
-      content: newMessage.trim(),
-      createdAt: new Date(),
+    const payload = {
+      ticketId,
+      userId: currentUser.id,
+      conteudo: inputContent,
     };
 
-    setMessages((prev) => [...prev, tempMsg]);
-    setNewMessage("");
-    setIsSending(false);
+    socket.emit("enviar_mensagem", payload, (response: any) => {
+      if (response?.status === "ok") {
+        setInputContent("");
+      } else {
+        console.error("Erro ao enviar mensagem:", response?.message);
+      }
+    });
   };
 
+  // Se o usuário não estiver carregado, exibe um estado de carregamento seguro
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-[600px] bg-zinc-950/80 border border-zinc-800 rounded-2xl text-zinc-500 text-xs">
+        Carregando dados do chat...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-[520px] bg-zinc-950/80 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
-      {/* Topo do Chat */}
-      <div className="p-4 border-b border-zinc-800/80 bg-zinc-900/50 flex items-center gap-2">
-        <MessageSquare className="h-4 w-4 text-emerald-400" />
-        <h3 className="text-sm font-semibold text-zinc-200">
-          Histórico de Comunicação
-        </h3>
+    <div className="flex flex-col h-[600px] bg-zinc-950/80 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header do Chat */}
+      <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900/40">
+        <h3 className="font-semibold text-zinc-100 text-sm">Histórico de Conversa</h3>
+        <p className="text-xs text-zinc-400">Mensagens em tempo real</p>
       </div>
 
       {/* Lista de Mensagens */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4">
-        {messages.map((msg) => {
-          const isMe = msg.senderId === currentUser.id;
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {messages.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-zinc-500 text-xs">
+            Nenhuma mensagem neste chamado ainda. Inicie a conversa abaixo.
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isMe = msg.remetente.id === currentUser.id;
 
-          return (
-            <div
-              key={msg.id}
-              className={cn("flex flex-col max-w-[80%]", isMe ? "ml-auto items-end" : "mr-auto items-start")}
-            >
-              <div className="flex items-center gap-2 mb-1 px-1">
-                <span className="text-[11px] font-medium text-zinc-400">{msg.senderName}</span>
-                <span className="text-[10px] text-zinc-600">
-                  {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-
+            return (
               <div
-                className={cn(
-                  "p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-md",
-                  isMe
-                    ? "bg-emerald-600 text-white rounded-tr-none"
-                    : "bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-tl-none"
-                )}
+                key={msg.id}
+                className={cn("flex flex-col max-w-[80%]", isMe ? "ml-auto items-end" : "mr-auto items-start")}
               >
-                {msg.content}
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-medium text-zinc-400">{msg.remetente.name}</span>
+                  <span className="text-[10px] text-zinc-600">
+                    {new Date(msg.criadoEm).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <div
+                  className={cn(
+                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
+                    isMe
+                      ? "bg-emerald-600 text-white rounded-tr-none"
+                      : "bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-tl-none"
+                  )}
+                >
+                  {msg.conteudo}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Input de Envio */}
-      <form onSubmit={handleSendMessage} className="p-3 bg-zinc-900/60 border-t border-zinc-800/80 flex gap-2 items-end">
-        <Textarea
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Escreva sua resposta..."
-          rows={2}
-          className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-emerald-500/40 resize-none min-h-[50px] text-sm"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage(e);
-            }
-          }}
+      <form onSubmit={handleSendMessage} className="p-4 border-t border-zinc-800 bg-zinc-900/40 flex items-center gap-3">
+        <Input
+          value={inputContent}
+          onChange={(e) => setInputContent(e.target.value)}
+          placeholder="Digite sua mensagem..."
+          className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-emerald-500"
         />
-
-        <Button
-          type="submit"
-          disabled={!newMessage.trim() || isSending}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white h-[50px] px-4 cursor-pointer disabled:opacity-50"
-        >
-          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        <Button type="submit" size="icon" className="bg-emerald-600 hover:bg-emerald-500 text-white shrink-0">
+          <Send className="size-4" />
         </Button>
       </form>
     </div>

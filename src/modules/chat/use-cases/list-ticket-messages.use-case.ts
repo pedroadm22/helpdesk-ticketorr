@@ -1,5 +1,5 @@
 import { ticketRepository } from "@/modules/tickets/repositories/ticket.repository";
-import { ListTicketMessagesInput, ListTicketMessagesSchema } from "../dto/list-ticket-messages.dto";
+import { ListTicketMessagesInput, ListTicketMessagesSchema } from "../dto/message.dto";
 import { chatRepository, ChatMessageWithSender } from "../repositories/chat.repository";
 
 export async function listTicketMessagesUseCase(
