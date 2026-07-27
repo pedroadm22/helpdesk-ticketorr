@@ -2,19 +2,16 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
+import { AssignTicketInput } from "@/modules/tickets/dto/assign-ticket.dto";  
 
-export async function assignTicketUseCase({
-  ticketId,
-  agentId,
-}: {
-  ticketId: string;
-  agentId: string;
-}) {
+
+export async function assignTicketUseCase({ ticketId, agentId }: AssignTicketInput) {
   return await db
     .update(tickets)
     .set({
       agentId: agentId,
-      status: "WAITING_AGENT", // Opcional: Atualiza o status automaticamente ao atribuir
+      // ⚠️ Garanta que NÃO há a linha: status: "IN_PROGRESS" aqui!
+      // Mantenha apenas a atualização do updatedAt e agentId:
       updatedAt: new Date(),
     })
     .where(eq(tickets.id, ticketId));

@@ -1,84 +1,83 @@
-// src/app/ticket/[id]/page.tsx
-import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers"; //
-import { auth } from "@/infrastructure/auth"; //
-import { getHistoricoChatUseCase } from "@/modules/tickets/use-cases/GetHistoricoChatUseCase";
-import { getTicketDetalheUseCase } from "@/modules/tickets/use-cases/GetTicketDetalheUseCase";
-import { ChatBoxContainer } from "@/components/features/chat/ChatBoxContainer";
-import { TicketSidebar } from "@/components/features/ticket-detalhes/TicketSidebar";
-import { TicketHeader } from "@/components/features/ticket-detalhes/TicketHeader";
+// src/app/(painel)/ticket/[id]/page.tsx
 
-interface TicketDetailsPageProps {
+import { notFound } from "next/navigation";
+import { getCurrentUserUseCase } from "@/modules/auth/use-cases/get-current-user.use-case";
+import { getTicketDetailsUseCase } from "@/modules/tickets/use-cases/get-ticket-details.use-case";
+import { TechnicianOption } from "@/components/features/ticket-details/ticket-admin-actions";
+
+import { TicketHeaderCard } from "@/components/features/ticket-details/ticket-header-card";
+import { TicketChat } from "@/components/features/ticket-details/ticket-chat";
+import { TicketAdminActions } from "@/components/features/ticket-details/ticket-admin-actions";
+
+interface TicketDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PaginaDetailDocChamado({
+import { listTechniciansUseCase } from "@/modules/auth/use-cases/list-technicians.use-case";
+
+export default async function TicketDetailPage({
   params,
-}: TicketDetailsPageProps) {
-  // 1. Aguarda a Promise do params ser resolvida pelo Next.js
-  const resolvedParams = await params;
-  const ticketId = resolvedParams.id;
+}: TicketDetailPageProps) {
+  const { id } = await params;
+  const user = await getCurrentUserUseCase();
+  if (!user) return null;
 
-  if (!ticketId) {
-    notFound();
-  }
-
-  // 🌟 2. PROTEÇÃO DE ROTA: Busca a sessão real do usuário logado no servidor
-  const session = await auth.api.getSession({
-    headers: await headers(),
+  const ticket = await getTicketDetailsUseCase({
+    ticketId: id,
+    viewerId: user.id,
   });
+  if (!ticket) notFound();
 
-  // Se o cara não estiver logado, barra ele e joga pra tela inicial/login
-  if (!session) {
-    redirect("/");
+  // Define o tipo explicitamente na declaração do array
+  let techniciansList: TechnicianOption[] = [];
+
+  if (user.role === "ADMIN") {
+    techniciansList = await listTechniciansUseCase();
   }
 
-  try {
-    // 3. Busca o ticket e o histórico em paralelo no banco de dados
-    const [ticket, historico] = await Promise.all([
-      getTicketDetalheUseCase({
-        ticketId: ticketId,
-        usuarioId: session.user.id,
-        role: session.user.role as "CLIENTE" | "TECNICO" | "ADMIN",
-      }),
-      getHistoricoChatUseCase(ticketId),
-    ]);
+  return (
+    <div className="p-8 space-y-6 max-w-7xl mx-auto">
+      <TicketHeaderCard ticket={ticket} currentUserRole={user.role} />
 
-    // Se o caso de uso não achar o chamado, joga um 404
-    if (!ticket) {
-      notFound();
-    }
-
-    // 🌟 4. TRANSFORMAÇÃO: O ID agora vem direto da sessão segura do Better Auth!
-    const usuarioAtualId = session.user.id;
-
-    return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 flex flex-col gap-6">
-        <TicketHeader
-          protocolo={ticket.protocolo}
-          titulo={ticket.titulo}
-          descricao={ticket.descricao}
+      {/* Componente de ações do ADMIN */}
+      {user.role === "ADMIN" && (
+        <TicketAdminActions
+          ticketId={ticket.id}
+          currentAgentId={ticket.agentId}
+          techniciansList={techniciansList}
         />
+      )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-          <TicketSidebar
-            status={ticket.status}
-            prioridade={ticket.prioridade}
-            clienteNome={ticket.cliente.name}
-          />
+      {/* 3. Área de Comunicação (Chat do Chamado) */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Chat Principal */}
+        <div className="lg:col-span-3">
+          <TicketChat ticketId={ticket.id} currentUser={user} />
+        </div>
 
-          <div className="lg:col-span-2 flex justify-center">
-            <ChatBoxContainer
-              ticketId={ticket.id}
-              usuarioAtualId={usuarioAtualId} // Repassando o ID legítimo ("nq48z8g...")
-              historicoInicial={historico}
-            />
+        {/* Sidebar de Status/Histórico rápido */}
+        <div className="space-y-4">
+          <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-xl space-y-3">
+            <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              Linha do Tempo
+            </h4>
+            <div className="space-y-2 text-xs text-zinc-400">
+              <div className="flex justify-between">
+                <span>Aberto em:</span>
+                <span className="text-zinc-200">
+                  {new Date(ticket.createdAt).toLocaleDateString("pt-BR")}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Última atualização:</span>
+                <span className="text-zinc-200">
+                  {new Date(ticket.updatedAt).toLocaleDateString("pt-BR")}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-      </main>
-    );
-  } catch (error) {
-    console.error("Erro ao carregar página do chamado:", error);
-    notFound();
-  }
+      </div>
+    </div>
+  );
 }

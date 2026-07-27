@@ -26,7 +26,7 @@ export default async function TicketsPage() {
   // 2. Busca os tickets aplicando os filtros com base na Role
   const tickets = await listTicketsUseCase({
     requestedByUserId: user.id,
-    requestedByUserRole: user.role, // 'CLIENT' | 'TECHNICIAN' | 'ADMIN'
+    requestedByUserRole: user.role,
   });
 
   return (
