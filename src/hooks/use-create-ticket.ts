@@ -1,56 +1,88 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+// src/components/features/tickets/hooks/use-create-ticket-form.ts
+import { useState, useTransition, useMemo } from "react";
 import { createTicketAction } from "@/actions/tickets/create-ticket.action";
 
-const createTicketSchema = z.object({
-  title: z.string().min(5, "O título deve ter no mínimo 5 caracteres"),
-  description: z.string().min(10, "A descrição deve ter no mínimo 10 caracteres"),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
-  departmentId: z.string().min(1, "Selecione um departamento"),
-  serviceId: z.string().min(1, "Selecione um serviço"),
-});
+export interface ServiceOption {
+  id: string;
+  name: string;
+  departmentId: string;
+  departmentName?: string;
+}
 
-export type CreateTicketFormValues = z.infer<typeof createTicketSchema>;
+interface UseCreateTicketFormProps {
+  servicesList: ServiceOption[];
+  onSuccess?: () => void;
+}
 
-export function useCreateTicket(onSuccess?: () => void) {
+export function useCreateTicket({
+  servicesList,
+  onSuccess,
+}: UseCreateTicketFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [errorMessage, setErrorMessage] = useState<string | undefined>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const form = useForm<CreateTicketFormValues>({
-    resolver: zodResolver(createTicketSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      priority: "MEDIUM",
-      departmentId: "", // Passe um ID válido do seu banco para testar
-      serviceId: "",    // Passe um ID válido do seu banco para testar
-    },
-  });
+  const [serviceId, setServiceId] = useState("");
+  const [description, setDescription] = useState("");
 
-  const onSubmit = form.handleSubmit((values) => {
-    setErrorMessage("");
+  const selectedService = useMemo(() => {
+    return servicesList.find((srv) => String(srv.id) === String(serviceId));
+  }, [servicesList, serviceId]);
+
+  function resetForm() {
+    setServiceId("");
+    setDescription("");
+    setErrorMessage(null);
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    if (!selectedService) {
+      setErrorMessage("Por favor, selecione um serviço válido.");
+      return;
+    }
+
+    if (!description.trim()) {
+      setErrorMessage("Por favor, descreva o problema com mais detalhes.");
+      return;
+    }
 
     startTransition(async () => {
-      const response = await createTicketAction(values);
+      const res = await createTicketAction({
+        serviceId,
+        departmentId: selectedService.departmentId, // 👈 Enviando o departmentId extraído do serviço
+        description,
+      });
 
-      if (!response.success) {
-        setErrorMessage(response.error);
-        return;
+      if (res.success) {
+        resetForm();
+        if (onSuccess) onSuccess();
+      } else {
+        if (Array.isArray(res.error)) {
+          setErrorMessage(
+            res.error[0]?.message || "Erro de validação nos dados.",
+          );
+        } else {
+          setErrorMessage(res.error || "Erro inesperado.");
+        }
       }
-
-      form.reset();
-      if (onSuccess) onSuccess();
     });
-  });
+  }
 
   return {
-    form,
-    isPending,
-    errorMessage,
-    onSubmit,
+    formState: {
+      serviceId,
+      description,
+      selectedService,
+      errorMessage,
+      isPending,
+    },
+    formActions: {
+      setServiceId: (val: string | null) => setServiceId(val ?? ""),
+      setDescription,
+      handleSubmit,
+      resetForm,
+    },
   };
 }

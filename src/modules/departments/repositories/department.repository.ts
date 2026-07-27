@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { departments } from "@/infrastructure/db/schema/departments";
+import { services } from "@/infrastructure/db/schema/services";
 
 export type DepartmentEntity = typeof departments.$inferSelect;
 export type DepartmentInsert = typeof departments.$inferInsert;
@@ -66,5 +67,20 @@ export const departmentRepository = {
       .returning();
 
     return !!deleted;
+  },
+
+  async findAllWithServicesCount() {
+    return await db
+      .select({
+        id: departments.id,
+        name: departments.name,
+        description: departments.description,
+        createdAt: departments.createdAt,
+        // sql agregador nativo do Drizzle convertendo para inteiro
+        servicesCount: sql<number>`count(${services.id})::int`, 
+      })
+      .from(departments)
+      .leftJoin(services, eq(services.departmentId, departments.id))
+      .groupBy(departments.id);
   },
 };

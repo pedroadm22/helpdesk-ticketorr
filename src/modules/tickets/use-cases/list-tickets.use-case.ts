@@ -1,4 +1,4 @@
-import { and, desc, eq, SQL } from "drizzle-orm";
+import { and, desc, eq, isNull, SQL } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
 import { ListTicketsInput, ListTicketsSchema } from "../dto/list-tickets.dto";
@@ -13,17 +13,27 @@ export async function listTicketsUseCase(
   // 2. Array dinâmico de condições para a cláusula where
   const conditions: (SQL | undefined)[] = [];
 
-  // 🛡️ TRAVA DE SEGURANÇA: Se for cliente comum, força o filtro apenas pelos chamados dele
+  // 🛡️ REGRAS DE VISIBILIDADE POR ROLE
   if (filters.requestedByUserRole === "CLIENT") {
+    // 👤 Cliente: Vê estritamente os chamados abertos por ele
     conditions.push(eq(tickets.clientId, filters.requestedByUserId));
-  } else {
-    // Se for técnico/admin, pode opcionalmente filtrar por um agente específico
+  } else if (filters.requestedByUserRole === "TECHNICIAN") {
+    // 🛠️ Técnico: Vê apenas os chamados atribuídos a ele
+    conditions.push(eq(tickets.agentId, filters.requestedByUserId));
+  } else if (filters.requestedByUserRole === "ADMIN") {
+    // 👑 Admin: Pode listar tudo ou aplicar filtros específicos
     if (filters.agentId) {
+      // Ex: Admin quer filtrar o painel por um técnico específico
       conditions.push(eq(tickets.agentId, filters.agentId));
     }
+
+    // Opcional: Se o Admin passar uma flag tipo `onlyUnassigned`, podemos filtrar por sem técnico
+    // if (filters.unassignedOnly) {
+    //   conditions.push(isNull(tickets.agentId));
+    // }
   }
 
-  // 🔍 Filtros dinâmicos opcionais
+  // 🔍 Filtros dinâmicos adicionais
   if (filters.status) {
     conditions.push(eq(tickets.status, filters.status));
   }

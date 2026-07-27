@@ -1,44 +1,39 @@
+// src/modules/tickets/actions/create-ticket.action.ts
 "use server";
 
-import { createClient } from "@/infrastructure/supabase/server";
-import { db } from "@/infrastructure/db";
-import { tickets } from "@/infrastructure/db/schema";
 import { revalidatePath } from "next/cache";
+import { createTicketUseCase } from "@/modules/tickets/use-cases/create-ticket.use-case";
+import { getCurrentUserUseCase } from "@/modules/auth/use-cases/get-current-user.use-case"; // Substitua pelo seu método de pegar o usuário logado
 
 export async function createTicketAction(data: {
-  title: string;
-  description: string;
-  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  departmentId: string;
   serviceId: string;
+  departmentId: string;
+  description: string;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: "Usuário não autenticado." };
-  }
-
   try {
-    const [newTicket] = await db
-      .insert(tickets)
-      .values({
-        title: data.title,
-        description: data.description,
-        priority: data.priority,
-        departmentId: data.departmentId,
-        serviceId: data.serviceId,
-        clientId: user.id, // Vínculo com a tabela public.users / auth.users
-        status: "WAITING_SUPPORT",
-      })
-      .returning();
+    // 1. Pega o usuário logado no servidor para obter o clientId
+    const user = await getCurrentUserUseCase();
+    if (!user) {
+      return { success: false, error: "Usuário não autenticado." };
+    }
 
-    // Revalida a página da tabela pra atualizar instantaneamente
-    revalidatePath("/dashboard/tickets");
+    // 2. Chama o Use Case preenchendo todos os campos obrigatórios
+    const ticket = await createTicketUseCase({
+      title: "Solicitação de Chamado", // Título padrão simples
+      description: data.description,
+      serviceId: data.serviceId,
+      departmentId: data.departmentId,
+      clientId: user.id,
+      priority: "MEDIUM", // Prioridade padrão
+    });
 
-    return { success: true, ticketId: newTicket.id };
-  } catch (error) {
-    console.error("Erro ao criar ticket:", error);
-    return { success: false, error: "Falha ao abrir o chamado no banco." };
+    revalidatePath("/ticket");
+    revalidatePath("/dashboard");
+    return { success: true, data: ticket };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Erro ao abrir chamado.",
+    };
   }
 }

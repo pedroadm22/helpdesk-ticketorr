@@ -8,7 +8,7 @@ import { FormError } from "@/components/ui/form-error";
 import { FormUnderlineInput } from "@/components/ui/form-underline-input";
 
 import { useRegister } from "@/hooks/use-register";
-import { GlassCard } from "@/components/ui/glass-card";
+import { Card } from "@/components/ui/glass-card";
 import { CloseButton } from "@/components/ui/close-button";
 import { LoginFooter } from "./login-footer";
 
@@ -16,7 +16,7 @@ export function RegisterForm() {
   const { form, isPending, errorMessage, onSubmit } = useRegister();
 
   return (
-    <GlassCard>
+    <Card>
       <CloseButton />
 
       <h2 className="text-3xl font-bold text-center mb-8 text-white tracking-wide">
@@ -123,6 +123,6 @@ export function RegisterForm() {
 
         </form>
       </Form>
-    </GlassCard>
+    </Card>
   );
 }

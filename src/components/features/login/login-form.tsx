@@ -4,7 +4,7 @@ import { Mail, Lock } from "lucide-react";
 
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
+import { Card } from "@/components/ui/glass-card";
 import { FormError } from "@/components/ui/form-error";
 import { FormUnderlineInput } from "@/components/ui/form-underline-input";
 
@@ -17,7 +17,7 @@ export function LoginForm() {
   const { form, isPending, errorMessage, onSubmit } = useLogin();
 
   return (
-    <GlassCard>
+    <Card>
       <h2 className="text-3xl font-bold text-center mb-8 text-white tracking-wide">
         Login
       </h2>
@@ -84,6 +84,6 @@ export function LoginForm() {
 
         </form>
       </Form>
-    </GlassCard>
+    </Card>
   );
 }
