@@ -27,7 +27,7 @@ export function CreateDepartmentDialog() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     setErrorMessage(null);
 
