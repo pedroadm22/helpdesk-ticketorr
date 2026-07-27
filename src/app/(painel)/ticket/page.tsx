@@ -5,13 +5,12 @@ import { listTicketsUseCase } from "@/modules/tickets/use-cases/list-tickets.use
 import { listServicesUseCase } from "@/modules/services/use-cases/list-services.use-case";
 
 import { CreateTicketDialog } from "@/components/features/tickets/create-ticket-dialog";
-// Importe seus componentes de tabela/cards aqui
+import { TicketsTable } from "@/components/features/tickets/ticket-table"; // Componente da Tabela
 
 export default async function TicketsPage() {
   const user = await getCurrentUserUseCase();
 
   if (!user) {
-    // Redirecionamento ou retorno de não autorizado
     return null;
   }
 
@@ -24,7 +23,7 @@ export default async function TicketsPage() {
     departmentName: srv.departmentName ?? "Geral",
   }));
 
-  // 2. Busca os tickets aplicando os filtros com base no Papel (Role)
+  // 2. Busca os tickets aplicando os filtros com base na Role
   const tickets = await listTicketsUseCase({
     requestedByUserId: user.id,
     requestedByUserRole: user.role, // 'CLIENT' | 'TECHNICIAN' | 'ADMIN'
@@ -47,12 +46,12 @@ export default async function TicketsPage() {
           </p>
         </div>
 
-        {/* Botão de abrir chamado (Apenas Clientes ou todos, dependendo da regra de negócio) */}
+        {/* Botão de abrir chamado */}
         <CreateTicketDialog servicesList={servicesList} />
       </div>
 
       {/* Lista / Tabela de Tickets */}
-      {/* Aqui você renderiza a lista passando o array de `tickets` obtidos */}
+      <TicketsTable tickets={tickets} userRole={user.role} />
     </div>
   );
 }
