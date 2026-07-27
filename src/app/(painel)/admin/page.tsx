@@ -19,10 +19,10 @@ export default async function AdminDashboardPage() {
 
   // Mapeia Departamentos para o Card Genérico
   const formattedDepartments = departments.map((dept) => ({
-    id: dept.id,
-    title: dept.name,
-    subtitle: `${dept.servicesCount} serviço(s)`,
-  }));
+  id: dept.id,
+  title: dept.name,
+  subtitle: `${dept.servicesCount} serviço(s)`, // Como aqui é uma string fixa, não dá erro
+}));
 
   // Mapeia Serviços para o Card Genérico
   const formattedServices = services.map((srv) => ({

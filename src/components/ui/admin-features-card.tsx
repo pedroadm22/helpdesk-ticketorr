@@ -12,7 +12,7 @@ import {
 export interface ItemSummary {
   id: string;
   title: string;
-  subtitle?: string;
+  subtitle?: string | null; // 👈 Adicionar o ? e o | null aqui resolve na fonte
 }
 
 interface AdminFeatureCardProps {

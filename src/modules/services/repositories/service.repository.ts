@@ -2,12 +2,12 @@
 import { db } from "@/infrastructure/db";
 import { services, departments, tickets } from "@/infrastructure/db/schema";
 import { eq, count } from "drizzle-orm";
+import { CreateServiceInput } from "../dto/create-service.dto";
+import { UpdateServiceInput } from "../dto/update-service.dto";
 
-// Definição do tipo/entidade do serviço
 export type ServiceEntity = typeof services.$inferSelect;
 
 export const serviceRepository = {
-  // 1. Para o Painel Admin (Tabela Geral de Serviços com nome do Departamento)
   async findAllWithDepartment() {
     return await db
       .select({
@@ -21,7 +21,6 @@ export const serviceRepository = {
       .leftJoin(departments, eq(services.departmentId, departments.id));
   },
 
-  // 2. Para a Abertura de Chamados (Filtro por Departamento)
   async findByDepartmentId(departmentId: string): Promise<ServiceEntity[]> {
     return await db
       .select()
@@ -29,7 +28,6 @@ export const serviceRepository = {
       .where(eq(services.departmentId, departmentId));
   },
 
-  // 3. Buscar Serviço Único por ID (para Edição)
   async findById(id: string): Promise<ServiceEntity | null> {
     const [service] = await db
       .select()
@@ -38,7 +36,6 @@ export const serviceRepository = {
     return service || null;
   },
 
-  // 4. Contar serviços de um departamento (usado na validação de exclusão do departamento)
   async countByDepartmentId(departmentId: string): Promise<number> {
     const [result] = await db
       .select({ count: count() })
@@ -56,8 +53,36 @@ export const serviceRepository = {
     return result?.count || 0;
   },
 
-  // 5. Salvar (Criar ou Atualizar)
-  async save(data: { id?: string; name: string; description?: string | null; departmentId: string }) {
+  async create(data: CreateServiceInput): Promise<ServiceEntity> {
+    const [newService] = await db
+      .insert(services)
+      .values({
+        name: data.name,
+        description: data.description,
+        departmentId: data.departmentId,
+      })
+      .returning();
+
+    return newService;
+  },
+
+  async update(id: string, data: UpdateServiceInput): Promise<ServiceEntity | undefined> {
+    const [updatedService] = await db
+      .update(services)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.departmentId !== undefined && { departmentId: data.departmentId }),
+        updatedAt: new Date(),
+      })
+      .where(eq(services.id, id))
+      .returning();
+
+    return updatedService;
+  },
+
+  // 🔄 Método Save (Cria se não tiver ID, atualiza se tiver)
+  async save(data: { id?: string; name: string; description?: string | null; departmentId: string }): Promise<ServiceEntity | undefined> {
     if (data.id) {
       const [updated] = await db
         .update(services)
@@ -65,6 +90,7 @@ export const serviceRepository = {
           name: data.name,
           description: data.description,
           departmentId: data.departmentId,
+          updatedAt: new Date(),
         })
         .where(eq(services.id, data.id))
         .returning();
@@ -82,8 +108,7 @@ export const serviceRepository = {
     return created;
   },
 
-  // 6. Remover Serviço
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     await db.delete(services).where(eq(services.id, id));
   },
 };
