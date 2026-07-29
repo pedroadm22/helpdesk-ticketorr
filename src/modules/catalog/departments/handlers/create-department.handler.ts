@@ -1,17 +1,14 @@
+import { capitalizeFirstLetter } from "@/shared/utils/format-text";
 import type { CriarDepartmentDto, DepartmentRespostaDto } from "../dtos";
 import { repositorioDepartment } from "../repositories/department.repository";
 import { createDepartmentUseCase } from "../use-cases/create-department.use-case";
 
-function capitalizarPrimeiraLetra(texto: string): string {
-  if (!texto) return texto;
-  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
-}
 
-export async function criarDepartmentHandler(
+export async function createDepartmentHandler(
   dados: CriarDepartmentDto
 ): Promise<DepartmentRespostaDto> {
   const dadosNormalizados: CriarDepartmentDto = {
-    name: capitalizarPrimeiraLetra(dados.name.trim()),
+    name: capitalizeFirstLetter(dados.name.trim()),
     ...(dados.description?.trim() ? { description: dados.description.trim() } : {}),
   };
 
