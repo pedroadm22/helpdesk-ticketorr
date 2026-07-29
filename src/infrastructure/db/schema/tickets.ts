@@ -1,8 +1,7 @@
 // src/infrastructure/db/schema/tickets.ts
 import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { departments } from "./departments";
-import { services } from "./services";
+import { departments,services } from "./catalog";
 import { users } from "./auth";
 
 // 1. Definição dos Enums Nativos do PostgreSQL

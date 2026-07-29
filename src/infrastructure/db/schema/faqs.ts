@@ -9,8 +9,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { departments } from "./departments";
-import { services } from "./services";
+import { departments, services } from "./catalog";
 
 export const faqs = pgTable(
   "faq_problems",
