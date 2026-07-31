@@ -1,6 +1,5 @@
-"use server";
+import { createServiceUseCase } from '@/modules/catalog/services/use-cases/create-service.use-case';
 
-import { createServiceUseCase } from "@/modules/services/use-cases/create-service.use-case";
 import { revalidatePath } from "next/cache";
 
 export async function createServiceAction(data: {
@@ -15,4 +14,4 @@ export async function createServiceAction(data: {
   } catch (error: any) {
     return { success: false, error: error.message || "Erro ao criar serviço." };
   }
-}git 
+}
