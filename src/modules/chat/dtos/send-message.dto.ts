@@ -3,15 +3,15 @@ import { z } from "zod";
 
 export const sendChatMessageSchema = z
   .object({
-    ticketId: z.string().uuid("ID do ticket inválido"),
-    userId: z.string().uuid("ID do usuário inválido"),
+    ticketId: z.uuid("ID do ticket inválido"),
+    userId: z.uuid("ID do usuário inválido"),
     content: z.string().trim().min(1, "A mensagem não pode estar vazia"),
     isInternal: z.boolean().optional().default(false),
     attachments: z
       .array(
         z.object({
           name: z.string(),
-          url: z.string().url("URL de anexo inválida"),
+          url: z.url("URL de anexo inválida"),
           type: z.string(),
           size: z.number().positive(),
         }),

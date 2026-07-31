@@ -2,3 +2,4 @@
 export * from "./send-message.dto";
 export * from "./get-ticket-message.dto";
 export * from "./delete-message.dto";
+export * from "./chat-message-response.dto"
