@@ -1,4 +1,3 @@
-// src/infrastructure/db/schema/tickets.ts
 import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { departments,services } from "./catalog";
@@ -6,6 +5,7 @@ import { users } from "./auth";
 
 // 1. Definição dos Enums Nativos do PostgreSQL
 export const ticketStatusEnum = pgEnum("ticket_status", [
+  "OPEN",
   "WAITING_SUPPORT",
   "VIEWED",
   "WAITING_CLIENT",
@@ -59,6 +59,8 @@ export const tickets = pgTable("tickets", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()), // Atualiza a data automaticamente ao editar o registro
+    // 🟢 Soft Delete: Null = Ativo | Data = Inativo/Deletado
+  deletedAt: timestamp("deleted_at"),
 });
 
 // 3. Relações do Drizzle

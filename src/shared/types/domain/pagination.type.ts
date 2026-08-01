@@ -1,4 +1,4 @@
-import { TicketStatus, TicketPriority } from "./db.type"
+import { TicketStatus, TicketPriority } from "./zod.types";
 
 // Parâmetros genéricos para requisições de listagem
 

@@ -1,50 +1,23 @@
-import { eq } from "drizzle-orm";
-import { db } from "@/infrastructure/db";
-import { users } from "@/infrastructure/db/schema/auth";
-import { GetTicketDetailsInput, GetTicketDetailsSchema } from "../dto/get-ticket-details.dto";
-import { ticketRepository, TicketWithDetails } from "../repositories/ticket.repository";
+import { GetTicketDetailsDTO, getTicketDetailsSchema } from "../dtos/get-ticket-details.dto";
+import { TicketResponseDTO } from "../dtos/ticket-response.dto";
+import { ITicketRepository } from "../repositories/ticket-repository.interface";
 
-export async function getTicketDetailsUseCase(
-  input: GetTicketDetailsInput
-): Promise<TicketWithDetails> {
-  const validatedData = GetTicketDetailsSchema.parse(input);
+export function createGetTicketDetailsUseCase(
+  ticketRepository: ITicketRepository
+) {
+  return async (dto: GetTicketDetailsDTO): Promise<TicketResponseDTO> => {
+    // 1. Valida o ID de entrada via Zod
+    const { id } = getTicketDetailsSchema.parse(dto);
 
-  // 1. Busca o ticket com os detalhes do cliente via repositório
-  const ticketWithDetails = await ticketRepository.findByIdWithDetails(
-    validatedData.ticketId
-  );
+    // 2. Busca o ticket no repositório com todas as relações populadas
+    // (O findById do repositório já filtra por deletedAt IS NULL)
+    const ticket = await ticketRepository.findById(id);
 
-  if (!ticketWithDetails) {
-    throw new Error("Ticket não encontrado.");
-  }
-
-  // 2. Busca o perfil do usuário visualizador
-  const [viewer] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, validatedData.viewerId))
-    .limit(1);
-
-  if (!viewer) {
-    throw new Error("Usuário visualizador não encontrado.");
-  }
-
-  const isSupport = viewer.role === "ADMIN" || viewer.role === "TECHNICIAN";
-
-  // 3. Regra de Negócio: Se for suporte e o ticket estiver "WAITING_SUPPORT", assume e altera para "VIEWED"
-  if (isSupport && ticketWithDetails.status === "WAITING_SUPPORT") {
-    const updatedTicket = await ticketRepository.update(validatedData.ticketId, {
-      status: "VIEWED",
-      agentId: ticketWithDetails.agentId ? ticketWithDetails.agentId : validatedData.viewerId,
-    });
-
-    if (updatedTicket) {
-      return {
-        ...ticketWithDetails,
-        ...updatedTicket,
-      };
+    // 3. Valida a existência e lança erro amigável se não for encontrado
+    if (!ticket) {
+      throw new Error("Chamado não encontrado ou foi inativado.");
     }
-  }
 
-  return ticketWithDetails;
+    return ticket;
+  };
 }

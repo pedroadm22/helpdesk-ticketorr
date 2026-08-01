@@ -1,22 +1,24 @@
-import { CreateTicketInput, CreateTicketSchema } from "../dto/create-ticket.dto";
-import { ticketRepository, TicketEntity } from "../repositories/ticket.repository";
+// src/modules/tickets/use-cases/create-ticket.use-case.ts
+import { CreateTicketDTO, createTicketSchema } from "../dtos/create-ticket.dto";
+import { TicketResponseDTO } from "../dtos/ticket-response.dto";
+import { ITicketRepository } from "../repositories/ticket-repository.interface";
+import { IServiceRepository } from "@/modules/services/repositories/service-repository.interface";
 
-export async function createTicketUseCase(
-  input: CreateTicketInput
-): Promise<TicketEntity> {
-  // 1. Valida a entrada com o Zod
-  const validatedData = CreateTicketSchema.parse(input);
+export function createTicketUseCase(
+  ticketRepository: ITicketRepository,
+  serviceRepository: IServiceRepository
+) {
+  return async (dto: CreateTicketDTO): Promise<TicketResponseDTO> => {
+    const validatedData = createTicketSchema.parse(dto);
 
-  // 2. Cria o chamado utilizando o repositório funcional
-  const newTicket = await ticketRepository.create({
-    title: validatedData.title,
-    description: validatedData.description,
-    departmentId: validatedData.departmentId,
-    serviceId: validatedData.serviceId,
-    clientId: validatedData.clientId,
-    priority: validatedData.priority ?? "MEDIUM",
-    status: "WAITING_SUPPORT", // Todo chamado nasce aguardando suporte
-  });
+    const service = await serviceRepository.findById(validatedData.serviceId);
+    if (!service) {
+      throw new Error("O serviço selecionado não existe ou foi desativado.");
+    }
 
-  return newTicket;
+    return await ticketRepository.create({
+      ...validatedData,
+      priority: service.priority,
+    });
+  };
 }
