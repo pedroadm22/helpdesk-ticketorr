@@ -1,31 +1,21 @@
-import { authRepository } from "../repositories/auth.repository";
+// src/modules/auth/use-cases/get-session-user.use-case.ts
+import { SessionUserDTO } from "../dtos/session-user.dto";
+import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
 
-export interface CurrentUserDTO {
-  id: string;
-  email: string;
-  name: string | null;
-  role: "CLIENT" | "TECHNICIAN" | "ADMIN";
-}
+export function createGetSessionUserUseCase(userRepository: IUserRepository) {
+  return async (userId: string): Promise<SessionUserDTO> => {
+    const user = await userRepository.findById(userId);
 
-export async function getCurrentUserUseCase(): Promise<CurrentUserDTO | null> {
-  // 1. Obtém a sessão ativa no Supabase Auth pelo repositório
-  const session = await authRepository.getSession();
+    if (!user) {
+      throw new Error("Sessão inválida ou usuário inativo.");
+    }
 
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  // 2. Busca o perfil completo (incluindo nome e role) na tabela pública via repositório
-  const profile = await authRepository.findById(session.user.id);
-
-  if (!profile) {
-    return null;
-  }
-
-  return {
-    id: profile.id,
-    email: profile.email,
-    name: profile.name,
-    role: (profile.role as "CLIENT" | "TECHNICIAN" | "ADMIN") || "CLIENT",
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      departmentId: user.departmentId,
+    };
   };
 }

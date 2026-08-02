@@ -1,5 +1,6 @@
 // src/infrastructure/db/schema/users.ts
 import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
+import { departments } from "./catalog";
 
 // Enum para controle de acesso do seu sistema
 export const userRoleEnum = pgEnum("user_role", [
@@ -9,7 +10,7 @@ export const userRoleEnum = pgEnum("user_role", [
 ]);
 
 export const users = pgTable("users", {
-  // O ID DEVE ser do tipo UUID, sem defaultRandom(), 
+  // O ID DEVE ser do tipo UUID, sem defaultRandom(),
   // pois ele virá diretamente do auth.users do Supabase
   id: uuid("id").primaryKey(),
 
@@ -17,7 +18,9 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   image: text("image"),
   role: userRoleEnum("role").notNull().default("CLIENT"),
-
+  departmentId: uuid("department_id").references(() => departments.id, {
+    onDelete: "set null",
+  }),
   createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .notNull()
     .defaultNow(),

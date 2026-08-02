@@ -1,18 +1,39 @@
-import { LoginInputDto, loginSchema } from "@/modules/auth/dto/login-submit.dto";
-import { authRepository, AuthResponse } from "../repositories/auth.repository";
+// src/modules/auth/use-cases/login.use-case.ts
+import { LoginSubmitDTO, loginSubmitSchema } from "../dtos/login-submit.dto";
+import { SessionUserDTO } from "../dtos/session-user.dto";
+import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
 
-export async function loginSubmitUseCase(
-  input: LoginInputDto
-): Promise<AuthResponse> {
-  // 1. Valida a entrada de email/senha com o Zod
-  const validatedData = loginSchema.parse(input);
+type ComparePasswordFn = (password: string, hash: string) => Promise<boolean>;
 
-  // 2. Executa a autenticação via Supabase Auth no repositório funcional
-  const result = await authRepository.signInWithEmail(validatedData);
+export function createLoginUseCase(
+  userRepository: IUserRepository,
+  comparePassword: ComparePasswordFn
+) {
+  return async (dto: LoginSubmitDTO): Promise<{ user: SessionUserDTO }> => {
+    // 1. Valida payload com Zod
+    const { email, password } = loginSubmitSchema.parse(dto);
 
-  if (!result.success) {
-    throw new Error(result.message || "Falha na autenticação.");
-  }
+    // 2. Busca usuário pelo e-mail
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      throw new Error("Credenciais inválidas.");
+    }
 
-  return result;
+    // 3. Valida a senha contra o hash armazenado
+    const isPasswordValid = await comparePassword(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new Error("Credenciais inválidas.");
+    }
+
+    // 4. Retorna a sessão limpa (sem passwordHash)
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        departmentId: user.departmentId,
+      },
+    };
+  };
 }

@@ -1,30 +1,28 @@
-import { authRepository } from "../repositories/auth.repository";
+// src/modules/auth/use-cases/authenticate-socket.use-case.ts
+import {
+  AuthenticateUserSocketDTO,
+  authenticateUserSocketSchema,
+} from "../dtos/autenticate-user-socket.dto";
+import { SessionUserDTO } from "../dtos/session-user.dto";
 
-export interface UsuarioSocketDTO {
-  id: string;
-  name: string;
-  role: "CLIENT" | "TECHNICIAN" | "ADMIN";
-}
+type VerifyTokenFn = (token: string) => Promise<SessionUserDTO | null>;
 
-export async function autenticarUsuarioSocketUseCase(
-  usuarioId: string
-): Promise<UsuarioSocketDTO | null> {
-  if (!usuarioId) return null;
+export function createAuthenticateSocketUseCase(verifyToken: VerifyTokenFn) {
+  return async (
+    dto: AuthenticateUserSocketDTO
+  ): Promise<{ authenticated: boolean; user: SessionUserDTO }> => {
+    // 1. Valida a estrutura da requisição
+    const { token } = authenticateUserSocketSchema.parse(dto);
 
-  try {
-    // 1. Busca o perfil do usuário através do repositório
-    const usuario = await authRepository.findById(usuarioId);
+    // 2. Valida a assinatura do token
+    const user = await verifyToken(token);
+    if (!user) {
+      throw new Error("Token de conexão WebSocket inválido ou expirado.");
+    }
 
-    if (!usuario) return null;
-
-    // 2. Mapeia para o DTO do Socket garantindo os enums padronizados em inglês
     return {
-      id: usuario.id,
-      name: usuario.name || "Usuário",
-      role: (usuario.role as "CLIENT" | "TECHNICIAN" | "ADMIN") || "CLIENT",
+      authenticated: true,
+      user,
     };
-  } catch (error) {
-    console.error("❌ Erro no caso de uso de autenticação do socket:", error);
-    return null;
-  }
+  };
 }

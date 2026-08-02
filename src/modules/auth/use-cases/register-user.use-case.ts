@@ -1,45 +1,41 @@
-import { RegisterInput, registerSchema } from "../dto/register-user.dto";
-import { createClient } from "@/infrastructure/supabase/server";
-import { authRepository } from "../repositories/auth.repository";
+// src/modules/auth/use-cases/register.use-case.ts
+import { RegisterUserDTO, registerUserSchema } from "../dtos/register-user.dto";
+import { SessionUserDTO } from "../dtos/session-user.dto";
+import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
 
-export interface RegisterUserOutput {
-  userId: string;
-  email: string;
-}
+type HashPasswordFn = (password: string) => Promise<string>;
 
-export async function registerUserUseCase(
-  input: RegisterInput
-): Promise<RegisterUserOutput> {
-  // 1. Validação de formato dos dados com Zod
-  const validatedData = registerSchema.parse(input);
+export function createRegisterUseCase(
+  userRepository: IUserRepository,
+  hashPassword: HashPasswordFn
+) {
+  return async (dto: RegisterUserDTO): Promise<{ user: SessionUserDTO }> => {
+    // 1. Valida entrada
+    const validatedData = registerUserSchema.parse(dto);
 
-  const supabase = await createClient();
+    // 2. Garante que e-mail não existe
+    const existingUser = await userRepository.findByEmail(validatedData.email);
+    if (existingUser) {
+      throw new Error("Já existe uma conta vinculada a este e-mail.");
+    }
 
-  // 2. Cadastro no Supabase Auth (auth.users)
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: validatedData.email,
-    password: validatedData.password,
-    options: {
-      data: { name: validatedData.name },
-    },
-  });
+    // 3. Hash da senha
+    const passwordHash = await hashPassword(validatedData.password);
 
-  if (authError || !authData.user) {
-    throw new Error(authError?.message || "Erro ao realizar o cadastro.");
-  }
+    // 4. Cria usuário
+    const createdUser = await userRepository.create({
+      ...validatedData,
+      passwordHash,
+    });
 
-  const userId = authData.user.id;
-
-  // 3. Criação do perfil do usuário na tabela pública via repositório
-  await authRepository.createUserProfile({
-    id: userId,
-    email: validatedData.email,
-    name: validatedData.name,
-    role: "CLIENT",
-  });
-
-  return {
-    userId,
-    email: validatedData.email,
+    return {
+      user: {
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+        role: createdUser.role,
+        departmentId: createdUser.departmentId,
+      },
+    };
   };
 }
