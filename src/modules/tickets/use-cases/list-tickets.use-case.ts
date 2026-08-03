@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { and, desc, eq, SQL } from "drizzle-orm";
 import { db } from "@/infrastructure/db";
 import { tickets } from "@/infrastructure/db/schema/tickets";
-import { ListTicketsInput, ListTicketsSchema } from "../dto/list-tickets.dto";
+import { ListTicketsInput, ListTicketsSchema } from "../dtos/get-tickets-filters.dto";
 
 export async function listTicketsUseCase(input: ListTicketsInput) {
   const filters = ListTicketsSchema.parse(input);

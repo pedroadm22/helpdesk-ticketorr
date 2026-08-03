@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid, boolean, jsonb } from "drizzle-orm/pg-core";
-import { users } from "./auth";
+import { users } from "./users";
 import { tickets } from "./tickets";
 
 export const chatMessages = pgTable("chat_messages", {

@@ -3,7 +3,7 @@ import { TicketAssignmentStrategyFn } from "./ticket-assignment.strategy";
 import { manualAssignmentStrategy } from "./manual-assignment.strategy";
 import { createWorkloadAssignmentStrategy } from "./workload-assignment.strategy";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
-import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
+import { IUserRepository } from "@/modules/catalog/users/repositories/user-repository.interface";
 
 export type AssignmentMode = assignmentModeZodSchema
 

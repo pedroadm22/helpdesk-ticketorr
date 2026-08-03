@@ -1,15 +1,24 @@
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  integer,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { pgEnum } from "drizzle-orm/pg-core"; 
-
-
+import { pgEnum } from "drizzle-orm/pg-core";
 
 export const departments = pgTable("departments", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const servicePriorityEnum = pgEnum("service_priority", [
@@ -20,15 +29,23 @@ export const servicePriorityEnum = pgEnum("service_priority", [
 ]);
 
 export const services = pgTable("services", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
   departmentId: uuid("department_id")
     .notNull()
-    .references(() => departments.id, { onDelete: "cascade" }), 
-  service_priority: servicePriorityEnum("service_priority").notNull().default("LOW"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    .references(() => departments.id, { onDelete: "cascade" }),
+  servicePriority: servicePriorityEnum("service_priority")
+    .notNull()
+    .default("LOW"),
+  slaHours: integer("sla_hours").notNull().default(24),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const departmentsRelations = relations(departments, ({ many }) => ({

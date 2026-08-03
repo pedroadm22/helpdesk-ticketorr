@@ -2,7 +2,7 @@
 import { AssignTicketDTO, assignTicketSchema } from "../dtos/assign-ticket.dto";
 import { TicketResponseDTO } from "../dtos/ticket-response.dto";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
-import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
+import { IUserRepository } from "@/modules/catalog/users/repositories/user-repository.interface";
 import { resolveAssignmentStrategy } from "../strategies/assignment-strategy.factory";
 
 // 🎯 Função pura que recebe as dependências e retorna a função executável do Use Case
@@ -25,15 +25,13 @@ export function createAssignTicketUseCase(
       userRepository
     );
 
-    // 4. Executa a estratégia de atribuição
     const resolvedAgentId = await strategyFn({
       ticketId,
       targetAgentId: technicianId,
     });
 
-    // 5. Regra de Negócio para o próximo status
     const nextStatus =
-      resolvedAgentId && ticket.status === "OPEN" ? "IN_PROGRESS" : undefined;
+      resolvedAgentId && ticket.status === "OPEN" ? "WAITING_AGENT" : undefined;
 
     // 6. Atualiza no repositório
     return await ticketRepository.assignTechnician({
