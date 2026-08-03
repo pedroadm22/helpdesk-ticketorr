@@ -1,20 +1,21 @@
-import { CloseTicketInput, CloseTicketSchema } from "../dto/close-ticket.dto";
-import { ticketRepository, TicketEntity } from "../repositories/ticket.repository";
+// src/modules/tickets/use-cases/soft-delete-ticket.use-case.ts
+import { DeleteTicketDTO, deleteTicketSchema } from "../dtos/close-ticket.dto";
+import { ITicketRepository } from "../repositories/ticket-repository.interface";
 
-export async function closeTicketUseCase(
-  input: CloseTicketInput
-): Promise<TicketEntity> {
-  // 1. Valida a entrada com o Zod
-  const validatedData = CloseTicketSchema.parse(input);
+export function createSoftDeleteTicketUseCase(
+  ticketRepository: ITicketRepository
+) {
+  return async (dto: DeleteTicketDTO): Promise<boolean> => {
+    // 1. Valida o payload de entrada
+    const { id } = deleteTicketSchema.parse(dto);
 
-  // 2. Executa a atualização do status para "CLOSED" via repositório
-  const closedTicket = await ticketRepository.update(validatedData.ticketId, {
-    status: "CLOSED",
-  });
+    // 2. Garante que o ticket existe e não está inativo
+    const ticket = await ticketRepository.findById(id);
+    if (!ticket) {
+      throw new Error("Chamado não encontrado ou já se encontra inativo.");
+    }
 
-  if (!closedTicket) {
-    throw new Error("Ticket não encontrado para encerramento.");
-  }
-
-  return closedTicket;
+    // 3. Executa o Soft Delete no Drizzle
+    return await ticketRepository.softDelete(id);
+  };
 }
