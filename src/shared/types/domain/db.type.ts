@@ -14,6 +14,9 @@ export type Department = InferSelectModel<typeof departments>;
 export type Service = InferSelectModel<typeof services>;
 export type Ticket = InferSelectModel<typeof tickets>;
 export type ChatMessage = InferSelectModel<typeof chatMessages>;
+export type ChatMessageWithUser = ChatMessage & {
+  user: User;
+};
 
 // 2. Modelos de Inserção (Para queries brutas de Insert)
 export type NewUser = InferInsertModel<typeof users>;
