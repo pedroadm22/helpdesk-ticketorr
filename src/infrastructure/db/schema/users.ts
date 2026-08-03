@@ -13,10 +13,9 @@ export const users = pgTable("users", {
   // O ID DEVE ser do tipo UUID, sem defaultRandom(),
   // pois ele virá diretamente do auth.users do Supabase
   id: uuid("id").primaryKey(),
-
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  image: text("image"),
+  image: text("image").notNull().default("https://ui-avatars.com/api/?name=User&background=random"),
   role: userRoleEnum("role").notNull().default("CLIENT"),
   departmentId: uuid("department_id").references(() => departments.id, {
     onDelete: "set null",

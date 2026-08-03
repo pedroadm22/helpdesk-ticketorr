@@ -2,12 +2,12 @@ import { z } from "zod";
 import { userRoleZodSchema } from "@/shared/types/domain/zod.types";
 
 export const userResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
-  email: z.string().email(),
+  email: z.email().trim().toLowerCase(),
   role: userRoleZodSchema,
-  departmentId: z.string().uuid().nullable().optional(),
-  avatarUrl: z.string().url().nullable().optional(),
+  departmentId: z.uuid().nullable().optional(),
+  avatarUrl: z.url().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
