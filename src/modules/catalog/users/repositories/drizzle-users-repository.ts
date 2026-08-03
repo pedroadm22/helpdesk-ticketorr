@@ -52,6 +52,19 @@ export const drizzleUserRepository: IUserRepository = {
 
     return results as UserResponseDTO[];
   },
+  findAgentsByDepartment: async (departmentId: string): Promise<UserResponseDTO[]> => {
+    const resultUsers = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.departmentId, departmentId),
+          eq(users.role, "TECHNICIAN")
+        )
+      );
+
+    return resultUsers;
+  },
 
   create: async (data: CreateUserDTO): Promise<User> => {
   if (!data.id) {

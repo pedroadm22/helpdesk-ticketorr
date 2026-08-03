@@ -2,7 +2,7 @@
 import { CreateTicketDTO, createTicketSchema } from "../dtos/create-ticket.dto";
 import { TicketResponseDTO } from "../dtos/ticket-response.dto";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
-import { IServiceRepository } from "@/modules/services/repositories/service-repository.interface";
+import { IServiceRepository } from "@/modules/catalog/services/repositories/service-repository.interface";
 
 export function createTicketUseCase(
   ticketRepository: ITicketRepository,
@@ -18,7 +18,7 @@ export function createTicketUseCase(
 
     return await ticketRepository.create({
       ...validatedData,
-      priority: service.priority,
+      priority: service.servicePriority,
     });
   };
 }

@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { departments,services } from "./catalog";
-import { users } from "./auth";
+import { users } from "./users";
 
 // 1. Definição dos Enums Nativos do PostgreSQL
 export const ticketStatusEnum = pgEnum("ticket_status", [
@@ -19,6 +19,17 @@ export const ticketPriorityEnum = pgEnum("ticket_priority", [
   "MEDIUM",
   "HIGH",
   "URGENT",
+]);
+
+export const assignmentModeEnum = pgEnum("assignment_mode", [
+  "MANUAL",
+  "WORKLOAD_BALANCED",
+]);
+
+export const assignmentStateEnum = pgEnum("assignment_state", [
+  "ALL",
+  "ASSIGNED",
+  "UNASSIGNED",
 ]);
 
 // 2. Tabela de Tickets no Postgres

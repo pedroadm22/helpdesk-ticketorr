@@ -9,7 +9,7 @@ export type PublicUserDTO = Pick<
 // 🎯 Resposta unificada do Ticket com todas as suas relações populadas
 export type TicketResponseDTO = Ticket & {
   department: Pick<Department, "id" | "name">;
-  service: Pick<Service, "id" | "name" | "service_priority">; // 🟢 Novo: Serviço vinculado
+  service: Pick<Service, "id" | "name" | "servicePriority">; // 🟢 Novo: Serviço vinculado
   client: PublicUserDTO;
   assignedTo: PublicUserDTO | null;
 };

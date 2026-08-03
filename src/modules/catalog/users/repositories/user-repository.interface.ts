@@ -8,6 +8,7 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   findAll(filters?: ListUsersFilterDTO): Promise<UserResponseDTO[]>; 
   findByEmail(email: string): Promise<User | null>;
+  findAgentsByDepartment(departmentId: string): Promise<UserResponseDTO[]>;
   create(data: CreateUserDTO): Promise<User>;
   update(data: UpdateUserDTO): Promise<User>;
   list(filters: ListUsersFilterDTO): Promise<{ users: User[]; total: number }>;

@@ -1,32 +1,41 @@
-import { unstable_cache } from "next/cache";
-import { and, desc, eq, SQL } from "drizzle-orm";
-import { db } from "@/infrastructure/db";
-import { tickets } from "@/infrastructure/db/schema/tickets";
-import { ListTicketsInput, ListTicketsSchema } from "../dtos/get-tickets-filters.dto";
+// src/modules/tickets/use-cases/list-tickets.use-case.ts
+import {
+  ListTicketsFilterDTO,
+  listTicketsFilterSchema,
+  ListTicketsQueryDTO,
+} from "../dtos/list-tickets-filters.dto";
+import { ListTicketsResponseDTO } from "../dtos/list-tickets-response.dto";
+import { ITicketRepository } from "../repositories/ticket-repository.interface";
 
-export async function listTicketsUseCase(input: ListTicketsInput) {
-  const filters = ListTicketsSchema.parse(input);
+// 👈 Importamos o DTO do Usuário da Sessão (não o AuthResponseDTO)
+import { SessionUserDTO } from "@/modules/auth/dtos/session-user.dto";
 
-  console.log("➡️ [1. INPUT FILTERS]:", filters);
+export function createListTicketsUseCase(ticketRepository: ITicketRepository) {
+  return async (
+    filters: ListTicketsFilterDTO,
+    currentUser: SessionUserDTO // 👈 Agora recebemos o usuário extraído da sessão
+  ): Promise<ListTicketsResponseDTO> => {
+    const validatedFilters = listTicketsFilterSchema.parse(filters);
 
-  const conditions: (SQL | undefined)[] = [];
+    const query: ListTicketsQueryDTO = {
+      ...validatedFilters,
+      scope: {
+        userId: currentUser.id,   // ✅ Agora SIM: string UUID do usuário
+        role: currentUser.role,   // ✅ Agora SIM: UserRole ("CLIENT" | "AGENT" | "ADMIN")
+      },
+    };
 
-  if (filters.requestedByUserRole === "CLIENT") {
-    conditions.push(eq(tickets.clientId, filters.requestedByUserId));
-  } else if (filters.requestedByUserRole === "TECHNICIAN") {
-    conditions.push(eq(tickets.agentId, filters.requestedByUserId));
-  }
-  // ADMIN não entra aqui (busca sem filtro de usuário)
+    const { tickets, total } = await ticketRepository.list(query);
+    const totalPages = Math.ceil(total / validatedFilters.limit);
 
-  if (filters.status) conditions.push(eq(tickets.status, filters.status));
-  if (filters.priority) conditions.push(eq(tickets.priority, filters.priority));
-
-  const results = await db
-    .select()
-    .from(tickets)
-    .where(and(...conditions))
-    .orderBy(desc(tickets.updatedAt));
-
-  console.log("⬅️ [2. BANCO RETORNOU]:", results.length, "chamados.");
-  return results;
+    return {
+      data: tickets,
+      meta: {
+        total,
+        page: validatedFilters.page,
+        limit: validatedFilters.limit,
+        totalPages,
+      },
+    };
+  };
 }

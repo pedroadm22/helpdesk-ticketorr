@@ -2,8 +2,12 @@
 
 // 🟢 1. Apenas IMPORTAMOS o que já existe no seu projeto!
 import type { CreateTicketDTO } from "../dtos/create-ticket.dto";
+import { ListTicketsQueryDTO } from "../dtos/list-tickets-filters.dto";
 import type { TicketResponseDTO } from "../dtos/ticket-response.dto";
-import type { TicketStatus, TicketPriority } from "@/shared/types/domain/zod.types";
+import type {
+  TicketStatus,
+  TicketPriority,
+} from "@/shared/types/domain/zod.types";
 
 // Re-exportamos caso algum arquivo precise importar a partir da interface
 export type { TicketResponseDTO };
@@ -28,19 +32,21 @@ export type FindTicketsFilter = {
   priority?: TicketPriority;
 };
 
-// 🟢 3. O Contrato usa diretamente o TicketResponseDTO importado
 export type ITicketRepository = {
   findById: (id: string) => Promise<TicketResponseDTO | null>;
   findAll: (filters?: FindTicketsFilter) => Promise<TicketResponseDTO[]>;
   softDelete: (id: string) => Promise<boolean>;
   create: (
-    data: CreateTicketDTO & { priority: TicketPriority }
+    data: CreateTicketDTO & { priority: TicketPriority },
   ) => Promise<TicketResponseDTO>;
   assignTechnician: (
-    payload: AssignTechnicianPayload
+    payload: AssignTechnicianPayload,
   ) => Promise<TicketResponseDTO>;
   updateStatus: (
-    payload: UpdateTicketStatusPayload
+    payload: UpdateTicketStatusPayload,
   ) => Promise<TicketResponseDTO>;
   delete: (id: string) => Promise<boolean>;
+  list(
+    query: ListTicketsQueryDTO,
+  ): Promise<{ tickets: TicketResponseDTO[]; total: number }>;
 };

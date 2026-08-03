@@ -1,7 +1,7 @@
 // src/modules/tickets/strategies/workload-assignment.strategy.ts
 import { TicketAssignmentStrategyFn } from "./ticket-assignment.strategy";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
-import { IUserRepository } from "@/modules/users/repositories/user-repository.interface";
+import { IUserRepository } from "@/modules/catalog/users/repositories/user-repository.interface";
 
 // 🎯 HOF (Higher-Order Function): Recebe dependências e retorna a função Strategy
 export function createWorkloadAssignmentStrategy(
