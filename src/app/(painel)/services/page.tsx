@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUserUseCase } from "@/modules/auth/use-cases/get-current-user.use-case";
-import { listServicesUseCase } from "@/modules/services/use-cases/list-services.use-case";
+import { listServicesUseCase } from "@/modules/catalog/services/use-cases/list-services.use-case";
 import { deleteServiceAction } from "@/actions/services/delete-service.action";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { Plus, Wrench, Building2, Edit2 } from "lucide-react";
@@ -9,9 +9,15 @@ import { Button } from "@/components/ui/button";
 
 export default async function ServicesPage() {
   const user = await getCurrentUserUseCase();
-  if (user?.role !== "ADMIN") redirect("/ticket");
+  
+  if (!user) redirect("/login");
+  if (user.role !== "ADMIN") redirect("/ticket");
 
-  const servicesList = await listServicesUseCase();
+  // 1. Garante a extração segura do array de serviços independente do retorno ({ data, total } ou Array)
+  const servicesResponse = await listServicesUseCase();
+  const servicesList = Array.isArray(servicesResponse)
+    ? servicesResponse
+    : servicesResponse?.data ?? [];
 
   return (
     <div className="p-8 space-y-6 max-w-7xl mx-auto">
@@ -20,9 +26,10 @@ export default async function ServicesPage() {
           <h1 className="text-2xl font-bold text-zinc-100">Catálogo de Serviços</h1>
           <p className="text-sm text-zinc-400">Gerencie os serviços oferecidos por cada departamento.</p>
         </div>
+        
         <Button className="bg-emerald-600 hover:bg-emerald-500 text-white">
-          <Link href="/services/new">
-            <Plus />
+          <Link href="/services/new" className="flex items-center gap-2">
+            <Plus className="size-4" />
             Novo Serviço
           </Link>
         </Button>
@@ -67,7 +74,7 @@ export default async function ServicesPage() {
                     <div className="flex items-center justify-end gap-1">
                       <Button size="icon-sm" variant="ghost">
                         <Link href={`/services/${srv.id}`}>
-                          <Edit2 />
+                          <Edit2 className="size-4" />
                         </Link>
                       </Button>
                       <ConfirmDeleteButton

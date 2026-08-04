@@ -6,7 +6,7 @@ import { IUserRepository } from "@/modules/catalog/users/repositories/user-repos
 import { resolveAssignmentStrategy } from "../strategies/assignment-strategy.factory";
 
 // 🎯 Função pura que recebe as dependências e retorna a função executável do Use Case
-export function createAssignTicketUseCase(
+export function assignTicketUseCase(
   ticketRepository: ITicketRepository,
   userRepository: IUserRepository
 ) {

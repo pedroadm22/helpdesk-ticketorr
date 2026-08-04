@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { deleteServiceUseCase } from "@/modules/services/use-cases/delete-service.use-case";
+import { deleteServiceUseCase } from "@/modules/catalog/services/use-cases/delete-service.use-case";
 
 export async function deleteServiceAction(id: string) {
   try {

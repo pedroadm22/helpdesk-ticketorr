@@ -1,11 +1,11 @@
-import { loginSchema, LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
+import { loginSchema, LoginDTO } from "@/modules/auth/dtos/login.dto";
 import { createClient } from "@/infrastructure/supabase/client";
 
 export type LoginResult = 
   | { success: true }
   | { success: false; error: string };
 
-export async function loginAction(data: LoginInputDto): Promise<LoginResult> {
+export async function loginAction(data: LoginDTO): Promise<LoginResult> {
   // 1. Validação do DTO antes de enviar
   const parseResult = loginSchema.safeParse(data);
   if (!parseResult.success) {

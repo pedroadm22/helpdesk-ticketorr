@@ -2,7 +2,7 @@
 import { DeleteTicketDTO, deleteTicketSchema } from "../dtos/close-ticket.dto";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
 
-export function createSoftDeleteTicketUseCase(
+export function softDeleteTicketUseCase(
   ticketRepository: ITicketRepository
 ) {
   return async (dto: DeleteTicketDTO): Promise<boolean> => {

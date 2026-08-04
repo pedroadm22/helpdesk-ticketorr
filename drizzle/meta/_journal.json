@@ -8,6 +8,20 @@
       "when": 1785334394551,
       "tag": "0000_noisy_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785776345208,
+      "tag": "0001_natural_magdalene",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785779088895,
+      "tag": "0002_glossy_the_enforcers",
+      "breakpoints": true
     }
   ]
 }

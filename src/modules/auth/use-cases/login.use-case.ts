@@ -1,11 +1,11 @@
+// src/modules/auth/use-cases/login.use-case.ts
+import { supabaseAuthRepository } from "../repositories/supabase-auth-repository";
 import type { IAuthRepository } from "../repositories/auth-repository.interface";
-import type { LoginDTO } from "../dtos/login.dto";
-import type { AuthResponseDTO } from "../dtos/auth-response.dto";
+import type { LoginDTO, AuthResponseDTO } from "../dtos";
 
-export const loginUseCase = (authRepository: IAuthRepository) => {
-  return {
-    execute: async (dto: LoginDTO): Promise<AuthResponseDTO> => {
-      return await authRepository.login(dto);
-    },
-  };
-};
+export async function loginUseCase(
+  dto: LoginDTO,
+  authRepo: IAuthRepository = supabaseAuthRepository // 🟢 Padrão definido!
+): Promise<AuthResponseDTO> {
+  return await authRepo.login(dto);
+}

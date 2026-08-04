@@ -1,4 +1,5 @@
 // src/config/navigation.config.ts
+import { UserRole } from "@/shared/types/domain/zod.types";
 import {
   Ticket,
   LayoutDashboard,
@@ -7,8 +8,6 @@ import {
   Building2,
   LucideIcon,
 } from "lucide-react";
-
-export type UserRole = "CLIENT" | "TECHNICIAN" | "ADMIN";
 
 export interface NavItem {
   title: string;

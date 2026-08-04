@@ -1,8 +1,8 @@
-// src/infrastructure/db/schema/users.ts
 import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { departments } from "./catalog";
+import { tickets } from "./tickets";
 
-// Enum para controle de acesso do seu sistema
 export const userRoleEnum = pgEnum("user_role", [
   "CLIENT",
   "TECHNICIAN",
@@ -10,12 +10,10 @@ export const userRoleEnum = pgEnum("user_role", [
 ]);
 
 export const users = pgTable("users", {
-  // O ID DEVE ser do tipo UUID, sem defaultRandom(),
-  // pois ele virá diretamente do auth.users do Supabase
   id: uuid("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  image: text("image").notNull().default("https://ui-avatars.com/api/?name=User&background=random"),
+  image: text("image").default("https://ui-avatars.com/api/?name=User&background=random"),
   role: userRoleEnum("role").notNull().default("CLIENT"),
   departmentId: uuid("department_id").references(() => departments.id, {
     onDelete: "set null",
@@ -28,3 +26,17 @@ export const users = pgTable("users", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+// 🟢 CRÍTICO: Relações de Usuário para resolver o erro 'referencedTable'
+export const usersRelations = relations(users, ({ one, many }) => ({
+  department: one(departments, {
+    fields: [users.departmentId],
+    references: [departments.id],
+  }),
+  clientTickets: many(tickets, {
+    relationName: "client_tickets",
+  }),
+  agentTickets: many(tickets, {
+    relationName: "agent_tickets",
+  }),
+}));

@@ -1,4 +1,5 @@
 import { pgTable, text, timestamp, uuid, boolean, jsonb } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { tickets } from "./tickets";
 
@@ -14,27 +15,32 @@ export const chatMessages = pgTable("chat_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 
   content: text("content").notNull(),
-
-  // 1. Mensagens Internas / Notas de Agentes
   isInternal: boolean("is_internal").default(false).notNull(),
 
-  // 2. Anexos de Arquivos (Imagens, PDFs, logs)
   attachments: jsonb("attachments").$type<
     Array<{
       name: string;
       url: string;
-      type: string; // ex: "image/png" | "application/pdf"
+      type: string;
       size: number;
     }>
   >(),
 
-  // 3. Controle de Leitura
   readAt: timestamp("read_at", { mode: "date", withTimezone: true }),
-
-  // 4. Auditoria de Edição
   editedAt: timestamp("edited_at", { mode: "date", withTimezone: true }),
-
   createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
     .defaultNow()
     .notNull(),
 });
+
+// 🟢 Relações das mensagens do Chat
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  ticket: one(tickets, {
+    fields: [chatMessages.ticketId],
+    references: [tickets.id],
+  }),
+  user: one(users, {
+    fields: [chatMessages.userId],
+    references: [users.id],
+  }),
+}));

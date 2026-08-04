@@ -1,18 +1,25 @@
+// src/app/(painel)/dashboard/page.tsx
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getCurrentUserUseCase } from "@/modules/auth/use-cases/get-current-user.use-case";
-import { dashboardRepository } from "@/modules/dashboard/repositories/dashboard.repository";
-import { Ticket, Clock, Building2, Wrench, Plus, ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { requireAdminOrTechnician } from "@/modules/auth/use-cases/require-auth-role.use-case";
+import { getDashboardMetricsUseCase } from "@/modules/dashboard/use-cases/get-dashboard-metrics.use-case";
+import { Ticket, Clock, Building2, Wrench, ArrowUpRight } from "lucide-react";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUserUseCase();
-  if (user?.role !== "ADMIN" && user?.role !== "TECHNICIAN") redirect("/ticket");
+  // 🟢 1. Validação de segurança centralizada (redireciona p/ /login se deslogado ou /ticket se for CLIENT)
+  const user = await requireAdminOrTechnician();
 
-  const metrics = await dashboardRepository.getMetrics();
+  // 🟢 2. Busca das métricas desacoplada via Use Case
+  const metrics = await getDashboardMetricsUseCase();
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      {/* Cabeçalho */}
+      <div>
+        <h1 className="text-2xl font-bold text-zinc-100">Painel do Administrador</h1>
+        <p className="text-sm text-zinc-400">
+          Bem-vindo de volta, {user.name}. Confira os indicadores do sistema.
+        </p>
+      </div>
 
       {/* Cards Principais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
-import { loginSchema, LoginInputDto } from "@/modules/auth/dto/login-submit.dto";
+import { loginSchema, LoginDTO } from "@/modules/auth/dtos/login.dto";
 import { loginAction } from "@/actions/auth/login.action";
 
 export function useLogin() {
@@ -11,7 +11,7 @@ export function useLogin() {
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const form = useForm<LoginInputDto>({
+  const form = useForm<LoginDTO>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -19,9 +19,8 @@ export function useLogin() {
     },
   });
 
-  async function handleSubmit(data: LoginInputDto) {
+  async function handleSubmit(data: LoginDTO) {
 
-    
 
     setIsPending(true);
     setErrorMessage(null);
