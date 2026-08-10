@@ -1,10 +1,14 @@
 import { Department } from '@/shared/domain/types/department.type';
+import {
+  CreateDepartmentDTO,
+  UpdateDepartmentDTO,
+  DepartmentFiltersDTO,
+} from '../dtos';
 
-export type DepartmentRepository = Readonly<{
-  findById: (id: string) => Promise<Department | null>;
-  findByName: (name: string) => Promise<Department | null>;
-  save: (department: Department) => Promise<Department>;
-  update: (department: Department) => Promise<Department>;
-  delete: (id: string) => Promise<void>;
-  findAll: (onlyActive?: boolean) => Promise<ReadonlyArray<Department>>;
-}>;
+export interface IDepartmentRepository {
+  findById(id: UpdateDepartmentDTO['id']): Promise<Department | null>;
+  findMany(filters?: DepartmentFiltersDTO): Promise<Department[]>;
+  create(data: CreateDepartmentDTO): Promise<Department>;
+  update(data: UpdateDepartmentDTO): Promise<Department>;
+  delete(id: UpdateDepartmentDTO['id']): Promise<void>;
+}

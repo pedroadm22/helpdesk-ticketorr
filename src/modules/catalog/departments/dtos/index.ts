@@ -1,0 +1,5 @@
+export * from "./create-department.dto"
+export * from "./update-department.dto"
+export * from "./department-filters.dto"
+export * from "./department-response.dto"
+export * from "../../services/dtos/catalog-tree-response.dto"

@@ -1,10 +1,11 @@
-import { TicketStatus } from "./ticket-status.type";
+import { TicketStatus } from './ticket-status.type';
+import { Department } from './department.type';
 
 // Métricas individuais da fila de trabalho do Agente
 export type AgentDashboardMetrics = Readonly<{
-  totalAssigned: number; // Chamados sob responsabilidade do técnico
-  waitingAgentCount: number; // Status WAITING_AGENT
-  nearSlaBreachCount: number; // Faltam menos de 2h para estourar o SLA
+  totalAssigned: number;
+  waitingAgentCount: number;
+  nearSlaBreachCount: number;
   resolvedThisMonthCount: number;
 }>;
 
@@ -13,21 +14,20 @@ export type StatusMetricItem = Readonly<{
   count: number;
 }>;
 
-export type DepartmentMetricItem = Readonly<{
-  departmentId: string;
-  departmentName: string;
-  count: number;
-}>;
+// Deriva id e name diretamente da entidade Department
+export type DepartmentMetricItem = Readonly<
+  Pick<Department, 'id' | 'name'> & {
+    count: number;
+  }
+>;
 
 // Métricas consolidadas do Gerente/Admin
 export type AdminDashboardMetrics = Readonly<{
   totalTickets: number;
-  unassignedCount: number; // Fila geral aguardando atribuição (OPEN)
-  slaBreachedCount: number; // Chamados com SLA estourado
+  unassignedCount: number;
+  slaBreachedCount: number;
 
   // Agrupamentos para gráficos do painel
   byStatus: ReadonlyArray<StatusMetricItem>;
   byDepartment: ReadonlyArray<DepartmentMetricItem>;
 }>;
-
-export * from './dashboard-metrics.type';

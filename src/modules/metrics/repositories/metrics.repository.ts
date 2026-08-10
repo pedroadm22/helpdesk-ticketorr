@@ -1,7 +1,18 @@
-import { AgentDashboardMetrics } from '@/shared/domain/types/dashboard-metrics.type';
-import { AdminDashboardMetrics } from '@/shared/domain/types/dashboard-metrics.type';
+import {
+  FilterMetricsDTO,
+  AgentDashboardMetricsResponseDTO,
+  AdminDashboardMetricsResponseDTO,
+} from '../dtos';
 
-export type MetricsRepository = Readonly<{
-  getAgentDashboardMetrics: (agentId: string) => Promise<AgentDashboardMetrics>;
-  getAdminDashboardMetrics: () => Promise<AdminDashboardMetrics>;
-}>;
+export interface IMetricsRepository {
+  // Retorna métricas da fila individual de um técnico/agente
+  getAgentDashboardMetrics(
+    agentId: NonNullable<FilterMetricsDTO['assignedAgentId']>,
+    filters?: FilterMetricsDTO
+  ): Promise<AgentDashboardMetricsResponseDTO>;
+
+  // Retorna os indicadores e agrupamentos globais (com byStatus usando Record<TicketStatus, number>)
+  getAdminDashboardMetrics(
+    filters?: FilterMetricsDTO
+  ): Promise<AdminDashboardMetricsResponseDTO>;
+}

@@ -1,12 +1,12 @@
 // 1. Tipagem isolada do anexo
-export interface TicketMessageAttachment {
+export type TicketMessageAttachment = {
   id: string;
   filename: string;
   url: string;
 }
 
 // 2. Interface principal reutilizando o tipo do anexo
-export interface TicketMessage {
+export type TicketMessage = {
   id: string;
   ticketId: string;
   userId: string;

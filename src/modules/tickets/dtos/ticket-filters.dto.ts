@@ -1,6 +1,6 @@
-import { Ticket } from "@/shared/domain/types/ticket.type";
+import { TicketFilters } from "@/shared/domain/types/ticket-filters.type";
 
-export type FilterTicketsDTO = Partial<Pick<Ticket, 'status' | 'priority' | 'clientId' | 'assignedAgentId' | 'serviceId'>> & {
+export type FilterTicketsDTO = TicketFilters & {
   page?: number;
   limit?: number;
 };

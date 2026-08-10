@@ -1,17 +1,27 @@
-import { Ticket } from '@/shared/domain/types/ticket.type';
-import { TicketMessage } from '@/shared/domain/types/ticket-message.type';
-import { TicketFilters } from '@/shared/domain/types/ticket-filters.type';
-import { PaginatedOutput } from '@/shared/domain/types/pagination.type';
+import { Ticket } from "@/shared/domain/types/ticket.type";
+import {
+  UpdateTicketStatusDTO,
+  AssignTicketDTO,
+  FilterTicketsDTO,
+  TicketDetailsResponseDTO,
+} from "../dtos";
 
-export type TicketRepository = Readonly<{
-  // Operações de Chamado
-  save: (ticket: Ticket) => Promise<Ticket>;
-  update: (ticket: Ticket) => Promise<Ticket>;
-  findById: (id: string) => Promise<Ticket | null>;
-  findByCode: (code: string) => Promise<Ticket | null>;
-  findMany: (filters: TicketFilters) => Promise<PaginatedOutput<Ticket>>;
+export interface ITicketRepository {
+  findById(id: UpdateTicketStatusDTO["id"]): Promise<Ticket | null>;
+  findDetailsById(
+    id: UpdateTicketStatusDTO["id"],
+  ): Promise<TicketDetailsResponseDTO | null>;
 
-  // Operações de Mensagens / Chat
-  saveMessage: (message: TicketMessage) => Promise<TicketMessage>;
-  findMessagesByTicketId: (ticketId: string) => Promise<ReadonlyArray<TicketMessage>>;
-}>;
+  findMany(filters?: FilterTicketsDTO): Promise<Ticket[]>;
+
+  create(
+    data: Omit<
+      Ticket,
+      "id" | "code" | "createdAt" | "updatedAt" | "resolvedAt" | "closedAt"
+    >,
+  ): Promise<Ticket>;
+
+  // Passa o DTO diretamente como payload da operação
+  updateStatus(data: UpdateTicketStatusDTO): Promise<Ticket>;
+  assignToAgent(data: AssignTicketDTO): Promise<Ticket>;
+}
