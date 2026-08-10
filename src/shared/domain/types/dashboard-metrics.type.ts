@@ -29,3 +29,5 @@ export type AdminDashboardMetrics = Readonly<{
   byStatus: ReadonlyArray<StatusMetricItem>;
   byDepartment: ReadonlyArray<DepartmentMetricItem>;
 }>;
+
+export * from './dashboard-metrics.type';

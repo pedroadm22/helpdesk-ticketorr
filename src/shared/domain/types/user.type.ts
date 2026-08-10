@@ -7,6 +7,7 @@ export type User = Readonly<{
   passwordHash: string;
   role: UserRole;
   departmentId: string | null;
+  avatarUrl: string | null;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;

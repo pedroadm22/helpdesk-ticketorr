@@ -6,6 +6,7 @@ export type Ticket = Readonly<{
   code: string;
   title: string;
   description: string;
+  departmentId: string;
   serviceId: string;
   clientId: string;
   assignedAgentId: string | null;

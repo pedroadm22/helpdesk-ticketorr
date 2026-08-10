@@ -5,7 +5,7 @@ export type Service = Readonly<{
   departmentId: string;
   slaHours: number; // Armazenado como inteiro no domínio (ex: 24)
   isFallback: boolean; // Indica se é serviço genérico ("Outros")
-  active: boolean; // Soft Delete
+  isActive: boolean; // Soft Delete
   createdAt: Date;
   updatedAt: Date;
 }>;
