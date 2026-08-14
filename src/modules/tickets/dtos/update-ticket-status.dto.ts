@@ -1,11 +1,6 @@
-// src/modules/tickets/dtos/update-ticket-status.dto.ts
-import { z } from "zod";
-import { ticketStatusZodSchema } from "@/shared/types/domain/zod.types";
+import { Ticket } from "@/shared/domain/types/ticket.type";
 
-export const updateTicketStatusSchema = z.object({
-  ticketId: z.uuid("ID do ticket inválido."),
-  status: ticketStatusZodSchema,
-  assignedToId: z.uuid("ID do técnico inválido.").nullable().optional(),
-});
-
-export type UpdateTicketStatusDTO = z.infer<typeof updateTicketStatusSchema>;
+export type UpdateTicketStatusDTO = Pick<Ticket, "id" | "status"> &
+  Partial<Pick<Ticket, "assignedAgentId">> & {
+    resolutionNote?: Ticket['description'];
+  };

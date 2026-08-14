@@ -1,13 +1,18 @@
-import type { CreateServiceDTO } from "../dtos/create-service.dto";
-import type { UpdateServiceDTO } from "../dtos/update-service.dto";
-import type { ListServicesFilterDTO } from "../dtos/list-services-filter.dto";
-import type { ServiceResponseDTO } from "../dtos/service-response.dto";
+import { Service } from '@/shared/domain/types';
+import {
+  CreateServiceDTO,
+  UpdateServiceDTO,
+  ServiceFiltersDTO,
+  CatalogTreeResponseDTO,
+} from '../dtos';
 
 export interface IServiceRepository {
-  create(dto: CreateServiceDTO): Promise<ServiceResponseDTO>;
-  update(dto: UpdateServiceDTO): Promise<ServiceResponseDTO>;
-  findById(id: string): Promise<ServiceResponseDTO | null>;
-  findByName(name: string): Promise<ServiceResponseDTO | null>;
-  list(filter: ListServicesFilterDTO): Promise<{ data: ServiceResponseDTO[]; total: number }>;
-  delete(id: string): Promise<void>;
+  findById(id: UpdateServiceDTO['id']): Promise<Service | null>;
+  findManyByDepartmentId(departmentId: CreateServiceDTO['departmentId']): Promise<Service[]>;
+  findMany(filters?: ServiceFiltersDTO): Promise<Service[]>;
+  create(data: CreateServiceDTO): Promise<Service>;
+  update(data: UpdateServiceDTO): Promise<Service>;
+  delete(id: UpdateServiceDTO['id']): Promise<void>;
+  
+  getCatalogTree(): Promise<CatalogTreeResponseDTO>;
 }

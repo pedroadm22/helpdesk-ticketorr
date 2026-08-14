@@ -1,0 +1,13 @@
+export { User } from '@/shared/domain/types/user.type';
+export { UserRole } from '@/shared/domain/types/user-role.type';
+export { UserFilters } from '@/shared/domain/types/user-filters.type';
+export { UserSession } from '@/shared/domain/types/user-session.type';
+export { SafeUser } from '@/shared/domain/types/safe-user.type';
+export { Service } from '@/shared/domain/types/service.type';
+export { Article } from '@/shared/domain/types/article.type';
+export * from '@/shared/domain/types/pagination.type';
+export * from '@/shared/domain/types/dashboard-metrics.type';
+export { Department } from '@/shared/domain/types/department.type';
+export { Ticket } from '@/shared/domain/types/ticket.type';
+export { TicketStatus } from '@/shared/domain/types/ticket-status.type';
+export { TicketMessage } from '@/shared/domain/types/ticket-message.type';

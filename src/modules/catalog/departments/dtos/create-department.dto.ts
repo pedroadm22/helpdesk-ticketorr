@@ -1,6 +1,3 @@
-import { z } from "zod";
-import { departmentBaseSchema } from "./department-base.schema";
+import { Department } from "@/shared/domain/types/department.type";
 
-export const criarDepartmentSchema = departmentBaseSchema;
-
-export type CriarDepartmentDto = z.infer<typeof criarDepartmentSchema>;
+export type CreateDepartmentDTO = Omit<Department, 'id' | 'createdAt' | 'updatedAt'>;

@@ -1,8 +1,6 @@
-import { z } from "zod";
+import { User } from '@/shared/domain/types/user.type';
 
-export const loginSchema = z.object({
-  email: z.email("E-mail inválido."),
-  password: z.string().min(1, "A senha é obrigatória."),
-});
-
-export type LoginDTO = z.infer<typeof loginSchema>;
+export type LoginDTO = {
+  email: User['email'];
+  password: string;
+};

@@ -1,8 +1,3 @@
-import { z } from "zod";
-import { departmentBaseSchema } from "./department-base.schema";
+import { Department } from "@/shared/domain/types/department.type";
 
-export const atualizarDepartmentSchema = departmentBaseSchema.partial().extend({
-  id: z.string().uuid("ID inválido"),
-});
-
-export type AtualizarDepartmentDto = z.infer<typeof atualizarDepartmentSchema>;
+export type UpdateDepartmentDTO = Partial<Department>;

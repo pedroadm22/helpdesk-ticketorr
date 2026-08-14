@@ -1,16 +1,16 @@
-import { User } from "@/shared/types/domain/db.type";
-import { CreateUserDTO } from "../dtos/create-user.dto";
-import { UpdateUserDTO } from "../dtos/update-user.dto";
-import { ListUsersFilterDTO } from "../dtos/list-users-filter.dto";
-import { UserResponseDTO } from "../dtos/user-response.dto";
+import { User } from "@/shared/domain/types";
+import {
+  CreateUserDTO,
+  UpdateUserDTO,
+  FilterUsersDTO,
+  UserResponseDTO,
+} from "../dtos";
 
 export interface IUserRepository {
-  findById(id: string): Promise<User | null>;
-  findAll(filters?: ListUsersFilterDTO): Promise<UserResponseDTO[]>; 
-  findByEmail(email: string): Promise<User | null>;
-  findAgentsByDepartment(departmentId: string): Promise<UserResponseDTO[]>;
+  // Extrai os tipos dos parâmetros direto das chaves dos DTOs de operação
+  findById(id: UserResponseDTO): Promise<User | null>;
+  findByEmail(email: CreateUserDTO["email"]): Promise<User | null>;
+  findMany(filters?: FilterUsersDTO): Promise<User[]>;
   create(data: CreateUserDTO): Promise<User>;
   update(data: UpdateUserDTO): Promise<User>;
-  list(filters: ListUsersFilterDTO): Promise<{ users: User[]; total: number }>;
-  delete(id: string): Promise<void>;
 }

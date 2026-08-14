@@ -1,15 +1,13 @@
-import { Ticket, Department, Service, User } from "@/shared/types/domain/db.type";
+import { Department, Service, User } from '@/shared/domain/types';
+import { Ticket } from '@/shared/domain/types/ticket.type';
 
-// 🛡️ Usuário público seguro para exibição visual no frontend (sem dados sensíveis)
-export type PublicUserDTO = Pick<
-  User,
-  "id" | "name" | "email" | "image" | "role"
->;
+// Resposta direta da entidade
+export type TicketResponseDTO = Ticket;
 
-// 🎯 Resposta unificada do Ticket com todas as suas relações populadas
-export type TicketResponseDTO = Ticket & {
-  department: Pick<Department, "id" | "name">;
-  service: Pick<Service, "id" | "name" | "servicePriority">; // 🟢 Novo: Serviço vinculado
-  client: PublicUserDTO;
-  assignedTo: PublicUserDTO | null;
+// 2. Resposta com os relacionamentos aninhados (para a tela de atendimento)
+export type TicketDetailsResponseDTO = Ticket & {
+  service: Pick<Service, 'id' | 'name'>;
+  department: Pick<Department, 'id' | 'name'>;
+  client: Pick<User, 'id' | 'name' | 'email'>;
+  assignedAgent?: Pick<User, 'id' | 'name' | 'email'> | null;
 };
