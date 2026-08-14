@@ -1,17 +1,19 @@
-// 1. Tipagem isolada do anexo
-export type TicketMessageAttachment = {
-  id: string;
-  filename: string;
-  url: string;
-}
-
-// 2. Interface principal reutilizando o tipo do anexo
-export type TicketMessage = {
+export type ChatMessage = Readonly<{
   id: string;
   ticketId: string;
-  userId: string;
+  senderId: string;
   content: string;
-  isInternal: boolean; // Se true, visível apenas para AGENT e ADMIN
+  isInternalNote: boolean;   // Se 'true', visível apenas para Técnicos e Admins
   createdAt: Date;
-  attachments?: ReadonlyArray<TicketMessageAttachment>;
-}
+  updatedAt: Date;
+}>;
+
+export type Attachment = Readonly<{
+  id: string;
+  messageId: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;         // Ex: "image/png", "application/pdf"
+  fileSize: number;         // Em bytes
+  createdAt: Date;
+}>;

@@ -6,10 +6,10 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 
-import { ALL_USER_ROLES } from "@/shared/domain/types/user-role.type"
+import { USER_ROLES } from "@/shared/domain/types/user-role.type"
 
 // Define os papéis de usuário no sistema
-export const userRoleEnum = pgEnum("user_role", ALL_USER_ROLES);
+export const userRoleEnum = pgEnum("user_role", USER_ROLES);
 
 export const users = pgTable("user", {
   id: text("id").primaryKey(),

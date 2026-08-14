@@ -9,11 +9,9 @@ import {
 import { users } from "./users";
 import { departments } from "./departments";
 import { services } from "./services";
-import { ALL_TICKET_PRIORITIES } from "@/shared/domain/types/ticket-priority.type";
-import { ALL_TICKET_STATUSES } from "@/shared/domain/types/ticket-status.type";
 
 // Enums nativos do Postgres para o ciclo de vida do chamado
-export const ticketStatusEnum = pgEnum("ticket_status", ALL_TICKET_STATUSES);
+export const ticketStatusEnum = pgEnum("ticket_status", ["OPEN, "]);
 
 export const ticketPriorityEnum = pgEnum("ticket_priority", ALL_TICKET_PRIORITIES);
 

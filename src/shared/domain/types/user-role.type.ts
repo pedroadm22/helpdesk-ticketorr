@@ -1,9 +1,3 @@
-export const ALL_USER_ROLES = ['ADMIN', 'AGENT', 'CLIENT'] as const;
+export const USER_ROLES = ["CLIENT", "TECHNICIAN", "ADMIN"] as const
 
-export type UserRole = typeof ALL_USER_ROLES[number];
-
-export const USER_ROLE_LABELS: Readonly<Record<UserRole, string>> = Object.freeze({
-  ADMIN: 'Administrador',
-  AGENT: 'Atendente / Técnico',
-  CLIENT: 'Cliente',
-});
+export type UserRole = typeof USER_ROLES;

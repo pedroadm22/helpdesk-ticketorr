@@ -1,10 +1,9 @@
-import { UserRole } from './user-role.type';
+export type UserRole = "CLIENT" | "TECHNICIAN" | "ADMIN";
 
 export type User = Readonly<{
   id: string;
   name: string;
   email: string;
-  passwordHash: string;
   role: UserRole;
   departmentId: string | null;
   avatarUrl: string | null;

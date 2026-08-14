@@ -1,5 +1,4 @@
-import { TicketStatus } from './ticket-status.type';
-import { TicketPriority } from './ticket-priority.type';
+import { TicketStatus, TicketPriority } from './ticket.type';
 
 export type TicketFilters = Readonly<{
   searchQuery?: string;
