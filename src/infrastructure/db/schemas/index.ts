@@ -6,4 +6,4 @@ export * from './departments';
 export * from './services';
 export * from './tickets';
 export * from './ticket-messages';
-export * from './relations' 
+export * from './relations'; 
