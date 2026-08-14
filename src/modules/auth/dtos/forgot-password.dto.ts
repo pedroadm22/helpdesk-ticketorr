@@ -1,7 +1,3 @@
-import { z } from "zod";
+import { User } from "@/shared/domain/types/user.type"
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().email("E-mail inválido."),
-});
-
-export type ForgotPasswordDTO = z.infer<typeof forgotPasswordSchema>;
+export type ForgotPasswordDTO = Pick<User, 'email'>

@@ -1,4 +1,4 @@
-import { UserRole } from './domain/types/user-role.type';
+import { UserRole } from './user-role.type';
 
 export type JwtPayload = Readonly<{
   sub: string; // ID do usuário
@@ -20,4 +20,4 @@ export type UserAuthSession = Readonly<{
   };
   accessToken: string;
   refreshToken: string;
-}
+}>
