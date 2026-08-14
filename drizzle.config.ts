@@ -1,23 +1,31 @@
-import { defineConfig } from 'drizzle-kit';
-import * as dotenv from 'dotenv';
+import { defineConfig } from "drizzle-kit";
+import * as dotenv from "dotenv";
 
-dotenv.config({ path: '.env.local' });
-dotenv.config();
+// Explicitly load your custom env file path
+dotenv.config({ path: "./.env.local" }); 
 
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error('DIRECT_URL or DATABASE_URL environment variable is missing.');
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL não está definida no arquivo .env");
 }
 
 export default defineConfig({
-  // Aponta direto para os arquivos .ts de schema na pasta (ignora o index e previne o erro de importação do _relations)
-  schema: './src/infrastructure/db/schemas/*.ts',
-  out: './drizzle',
-  dialect: 'postgresql',
+  // Caminho onde estão os seus arquivos de schema
+  schema: "./src/infrastructure/db/schemas/",
+
+  
+  
+  // Pasta para onde as migrações SQL geradas pelo drizzle-kit serão salvas
+  out: "./src/db/migrations",
+  
+  // Dialeto do banco de dados
+  dialect: "postgresql",
+  
+  // Credenciais de acesso ao banco
   dbCredentials: {
-    url: connectionString,
+    url: process.env.DATABASE_URL,
   },
+
+  // Exibir logs SQL detalhados no terminal
   verbose: true,
   strict: true,
 });

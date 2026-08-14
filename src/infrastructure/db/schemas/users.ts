@@ -1,7 +1,5 @@
 import {
   pgTable,
-  uuid,
-  varchar,
   timestamp,
   pgEnum,
   text,
