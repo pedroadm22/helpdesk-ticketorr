@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-,     "docs/regras-de-negocios.md"  ],
+,     "docs/regras-de-negocios.md", "src/shared/domain/types/auth.typets"  ],
   "exclude": ["node_modules"]
 }

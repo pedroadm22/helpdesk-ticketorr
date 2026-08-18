@@ -15,7 +15,7 @@ export default defineConfig({
   
   
   // Pasta para onde as migrações SQL geradas pelo drizzle-kit serão salvas
-  out: "./src/db/migrations",
+  out: "./src/infrastructure/db/migrations",
   
   // Dialeto do banco de dados
   dialect: "postgresql",

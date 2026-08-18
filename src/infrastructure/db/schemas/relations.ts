@@ -1,7 +1,4 @@
 import { defineRelations } from "drizzle-orm";
-import { users } from "./users";
-import { sessions } from "./sessions";
-import { accounts } from "./accounts";
 import { departments } from "./departments";
 import { services } from "./services";
 import { tickets } from "./tickets";
