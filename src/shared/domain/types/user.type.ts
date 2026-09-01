@@ -1,13 +1,47 @@
-export type UserRole = "CLIENT" | "TECHNICIAN" | "ADMIN";
-
-export type User = Readonly<{
+export interface BaseUser {
   id: string;
+
   name: string;
   email: string;
-  role: UserRole;
-  departmentId: string | null;
-  avatarUrl: string | null;
+
   active: boolean;
+
   createdAt: Date;
   updatedAt: Date;
-}>;
+}
+
+export interface Client extends BaseUser {
+  role: "client";
+
+  departmentId: null;
+  teamId: null;
+}
+
+export interface Technician extends BaseUser {
+  role: "technician";
+
+  departmentId: string;
+  teamId: string | null;
+}
+
+export interface Admin extends BaseUser {
+  role: "admin";
+
+  departmentId: string;
+  teamId: null;
+}
+
+export interface SuperAdmin extends BaseUser {
+  role: "super_admin";
+
+  departmentId: null;
+  teamId: null;
+}
+
+export type User =
+  | Client
+  | Technician
+  | Admin
+  | SuperAdmin;
+
+export type UserRole = User["role"];

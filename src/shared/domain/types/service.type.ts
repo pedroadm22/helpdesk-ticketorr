@@ -1,11 +1,11 @@
-export type Service = Readonly<{
+export interface Service {
   id: string;
+  departmentId: string;
+  slaTime: number;
+  teamId: string | null;
   name: string;
   description: string | null;
-  departmentId: string;
-  slaHours: number; // Armazenado como inteiro no domínio (ex: 24)
-  isFallback: boolean; // Indica se é serviço genérico ("Outros")
-  isActive: boolean; // Soft Delete
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
-}>;
+}

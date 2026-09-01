@@ -1,29 +1,33 @@
-export type TicketStatus =
-  | "OPEN"              // Recém-criado, na fila de triagem
-  | "WAITING_SUPPORT"   // Na fila do departamento
-  | "VIEWED"            // Visualizado por um técnico
-  | "WAITING_CLIENT"    // Aguardando ação do cliente
-  | "WAITING_AGENT"     // Aguardando resposta do técnico
-  | "RESOLVED"          // Marcado como resolvido
-  | "CLOSED";           // Finalizado definitivamente
-
-export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-
-export type Ticket = Readonly<{
+export interface Ticket {
   id: string;
-  code: string;               // Ex: #1024
+
   title: string;
   description: string;
+
+  requesterId: string;
+
   departmentId: string;
   serviceId: string;
-  clientId: string;
-  assignedAgentId: string | null;
-  customCategory: string | null;
-  status: TicketStatus;
+
+  assignedToId: string | null;
+
+  teamId: string | null;
   priority: TicketPriority;
-  slaDueDate: Date;           // Data/Hora limite calculada pelo SLA do serviço
-  resolvedAt: Date | null;
-  closedAt: Date | null;
+  status: TicketStatus;
   createdAt: Date;
   updatedAt: Date;
-}>;
+  closedAt: Date | null;
+}
+
+export type TicketStatus =
+  | "opened"
+  | "waiting_agent"
+  | "viewed"
+  | "waiting_client"
+  | "closed";
+
+export type TicketPriority =
+  | "low"
+  | "medium"
+  | "high"
+  | "critical";
