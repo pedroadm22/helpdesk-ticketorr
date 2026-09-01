@@ -2,7 +2,7 @@
 import { AssignTicketDTO, assignTicketSchema } from "../dtos/assign-ticket.dto";
 import { TicketResponseDTO } from "../dtos/ticket-response.dto";
 import { ITicketRepository } from "../repositories/ticket-repository.interface";
-import { IUserRepository } from "@/modules/catalog/users/repositories/user-repository";
+import { IUserRepository } from "@/modules/catalog/users/repositories/user.repository";
 import { resolveAssignmentStrategy } from "../strategies/assignment-strategy.factory";
 
 // 🎯 Função pura que recebe as dependências e retorna a função executável do Use Case

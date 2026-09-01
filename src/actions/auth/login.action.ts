@@ -1,4 +1,4 @@
-import { loginSchema, LoginDTO } from "@/modules/auth/dtos/login.dto";
+import { loginSchema, LoginDTO } from "@/modules/auth/dtos/sign-in.dto";
 import { createClient } from "@/infrastructure/supabase/client";
 
 export type LoginResult = 

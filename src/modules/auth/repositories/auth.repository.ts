@@ -1,6 +1,6 @@
 import { supabase } from "@/infrastructure/supabase/client";
 
-export const authenticationRepository = {
+export const authRepository = {
   async signUp(email: string, password: string) {
     const { data, error } = await supabase.auth.signUp({
       email,

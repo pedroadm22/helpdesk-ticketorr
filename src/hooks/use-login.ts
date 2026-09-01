@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
-import { loginSchema, LoginDTO } from "@/modules/auth/dtos/login.dto";
+import { loginSchema, LoginDTO } from "@/modules/auth/dtos/sign-in.dto";
 import { loginAction } from "@/actions/auth/login.action";
 
 export function useLogin() {

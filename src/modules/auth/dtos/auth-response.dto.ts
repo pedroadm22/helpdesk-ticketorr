@@ -1,6 +1,7 @@
-import type { UserResponseDTO } from "@/modules/catalog/users/dtos/user-response.dto";
+import { User } from "@/shared/domain/types/user.type";
+import type { Session } from "@supabase/supabase-js";
 
-export interface AuthResponseDTO {
-  user: UserResponseDTO;
-  accessToken?: string;
-}
+export type AuthResponseDTO = {
+  user: Pick<User, "id" | "email">;
+  session: Session | null;
+};

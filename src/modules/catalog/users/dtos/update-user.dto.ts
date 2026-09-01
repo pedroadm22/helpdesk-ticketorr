@@ -1,3 +1,12 @@
-import type { BaseUser } from "@/shared/domain/types/user.type";
+import { User } from "@/shared/domain/types/user.type";
 
-export type UpdateUserDTO = Partial<Pick<BaseUser, "name" | "email">>;
+export type UpdateUserDTO = Partial<
+  Pick<
+    User,
+    "name" |
+    "email" |
+    "role" |
+    "departmentId" |
+    "teamId"
+  >
+>;

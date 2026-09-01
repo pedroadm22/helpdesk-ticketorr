@@ -1,5 +1,8 @@
-export * from "./create-user.use-case";
-export * from "./get-user-by-id.use-case";
-export * from "./list-users-filter.use-case";
-export * from "./update-user.use-case";
-export * from "./delete-user.use-case";
+export * from "./register-technician.usecase";
+export * from "./get-user.usecase";
+export * from "./list-users.usecase";
+export * from "./update-user.usecase";
+export * from "./activate-user.usecase";
+export * from "./deactivate-user.usecase";
+export * from "./update-user.usecase";
+
