@@ -1,9 +1,47 @@
-import { RefreshToken } from '@/shared/domain/types/refresh-token.type';
-import { CreateRefreshTokenDTO, RevokeRefreshTokenDTO } from '../dtos';
+import { supabase } from "@/infrastructure/supabase/client";
 
-export interface IAuthRepository {
-  create(data: CreateRefreshTokenDTO): Promise<RefreshToken>;
-  findByTokenHash(tokenHash: RefreshToken['tokenHash']): Promise<RefreshToken | null>;
-  revokeById(id: NonNullable<RevokeRefreshTokenDTO['id']>): Promise<void>;
-  revokeAllByUserId(userId: NonNullable<RevokeRefreshTokenDTO['userId']>): Promise<void>;
-}
+export const authenticationRepository = {
+  async signUp(email: string, password: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  },
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  },
+
+  async signOut(): Promise<void> {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+  },
+
+  async getCurrentUser() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.user;
+  },
+};

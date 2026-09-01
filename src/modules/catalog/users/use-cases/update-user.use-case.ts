@@ -1,4 +1,4 @@
-import type { IUserRepository } from "../repositories/user-repository.interface";
+import type { IUserRepository } from "../repositories/user-repository";
 import type { UpdateUserDTO } from "../dtos/update-user.dto";
 import type { UserResponseDTO } from "../dtos/user-response.dto";
 

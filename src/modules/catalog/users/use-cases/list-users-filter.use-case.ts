@@ -1,5 +1,5 @@
-import type { IUserRepository } from "../repositories/user-repository.interface";
-import type { ListUsersFilterDTO } from "../dtos/list-users-filter.dto";
+import type { IUserRepository } from "../repositories/user-repository";
+import type { ListUsersFilterDTO } from "../dtos/list-users.dto";
 import type { UserResponseDTO } from "../dtos/user-response.dto";
 
 export const listUsersUseCase = (userRepository: IUserRepository) => {

@@ -1,3 +1,3 @@
-import { User } from "@/shared/domain/types";
+import type { User } from "@/shared/domain/types/user.type";
 
-export type UserResponseDTO = Omit<User, 'passwordHash'>;
+export type UserResponseDTO = User;

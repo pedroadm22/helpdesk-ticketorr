@@ -1,4 +1,4 @@
-import type { IUserRepository } from "../repositories/user-repository.interface";
+import type { IUserRepository } from "../repositories/user-repository";
 import type { UserResponseDTO } from "../dtos/user-response.dto";
 
 export const getUserByIdUseCase = (userRepository: IUserRepository) => {

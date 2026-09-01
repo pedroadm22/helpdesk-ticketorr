@@ -1,5 +1,33 @@
-import { DepartmentAction, ServiceAction, TeamAction, TicketAction, TriageAction, UserAction } from "./actions.type";
-import { UserRole } from "./user.type";
+export type TicketAction =
+  | "create"
+  | "view"
+  | "update"
+  | "respond"
+  | "assign"
+  | "reopen"
+  | "close";
+
+export type UserAction =
+  | "view"
+  | "create"
+  | "update"
+  | "deactivate";
+
+export type DepartmentAction =
+  | "view"
+  | "manage";
+
+export type TeamAction =
+  | "view"
+  | "manage";
+
+export type ServiceAction =
+  | "view"
+  | "manage";
+
+export type TriageAction =
+  | "view"
+  | "manage";
 
 export type Permission =
   | `ticket:${TicketAction}`
@@ -8,8 +36,3 @@ export type Permission =
   | `team:${TeamAction}`
   | `service:${ServiceAction}`
   | `triage:${TriageAction}`;
-
-export type RolePermissions = Record<
-  UserRole,
-  Permission[]
->;

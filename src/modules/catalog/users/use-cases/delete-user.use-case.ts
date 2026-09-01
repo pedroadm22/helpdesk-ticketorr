@@ -1,4 +1,4 @@
-import type { IUserRepository } from "../repositories/user-repository.interface";
+import type { IUserRepository } from "../repositories/user-repository";
 import type { DeleteUserDTO } from "../dtos/delete-user.dto";
 
 export const deleteUserUseCase = (userRepository: IUserRepository) => {
