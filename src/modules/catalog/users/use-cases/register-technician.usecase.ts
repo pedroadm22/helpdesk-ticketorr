@@ -3,7 +3,7 @@ import { userRepository } from "../repositories/user.repository";
 import { RegisterTechnicianDTO, UserResponseDTO } from "../dtos";
 import { User } from "@/shared/domain/types/user.type";
 
-export async function createTechnicianUseCase(
+export async function RegisterTechnicianUseCase(
   currentUser: User,
   data: RegisterTechnicianDTO
 ): Promise<UserResponseDTO> { 

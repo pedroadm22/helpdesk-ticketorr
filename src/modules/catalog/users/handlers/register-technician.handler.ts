@@ -1,9 +1,9 @@
 import type { User } from "@/shared/domain/types/user.type";
 import type { RegisterTechnicianDTO } from "../dtos/register-technician.dto";
 
-import { createTechnicianUseCase } from "../use-cases/register-technician.usecase";
+import { RegisterTechnicianUseCase } from "../use-cases/register-technician.usecase";
 
-export async function registerTechnicianHandler(
+export async function RegisterTechnicianHandler(
   currentUser: User,
   body: RegisterTechnicianDTO
 ) {
@@ -15,7 +15,7 @@ export async function registerTechnicianHandler(
     teamId: body.teamId ?? null,
   };
 
-  return createTechnicianUseCase(
+  return RegisterTechnicianUseCase(
     currentUser,
     data
   );
